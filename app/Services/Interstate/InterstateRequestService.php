@@ -77,13 +77,26 @@ class InterstateRequestService
             $total = $subtotal + $vat;
 
             // 7. Create main request
+            $serviceLocationId = null;
+            if (!empty($data['pick_lat']) && !empty($data['pick_lng'])) {
+                $serviceLocationId = $this->getServiceLocationId(
+                    (float) $data['pick_lat'],
+                    (float) $data['pick_lng']
+                );
+            }
+            // Fallback: get first service location
+            if (!$serviceLocationId) {
+                $serviceLocationId = \App\Models\Admin\ServiceLocation::first()?->id;
+            }
+
             $request = Request::create([
                 'request_number' => $this->generateRequestNumber(),
                 'user_id' => $data['user_id'],
                 'delivery_mode' => 'interstate',
+                'delivery_type' => 'interstate',
                 'transport_type' => 'delivery',
-                'is_bid_ride' => true, // Enable bidding for local legs
-                
+                'is_bid_ride' => true,
+
                 // Interstate specific
                 'trucking_company_id' => $route->trucking_company_id,
                 'origin_hub_id' => $route->origin_hub_id,
@@ -91,26 +104,29 @@ class InterstateRequestService
                 'supported_route_id' => $route->id,
                 'total_legs' => 5,
                 'current_leg_number' => 1,
-                
+
+                // Sender/Recipient (from structured form)
+                'sender_phone' => $data['sender_phone'] ?? null,
+                'sender_name' => $data['sender_name'] ?? null,
+                'recipient_phone' => $data['recipient_phone'] ?? null,
+                'recipient_name' => $data['recipient_name'] ?? null,
+                'pickup_state' => $data['pickup_state'] ?? null,
+                'destination_state' => $data['destination_state'] ?? null,
+
                 // Financial breakdown
                 'local_pickup_fee' => $localPickupPrice,
                 'interstate_transport_fee' => $freightCalculation->totalPrice,
                 'local_delivery_fee' => $localDeliveryPrice,
-                
+
                 // Total
                 'request_eta_amount' => $total,
-                
-                // Status
-                'status' => 'pending',
-                
+
                 // Service location
-                'service_location_id' => $this->getServiceLocationId(
-                    $data['pick_lat'], 
-                    $data['pick_lng']
-                ),
-                
+                'service_location_id' => $serviceLocationId,
+
                 // Timestamps
                 'trip_start_time' => $data['preferred_pickup_time'] ?? now(),
+                'bidding_timeout_at' => now()->addHours(24),
             ]);
 
             // 8. Create request place
@@ -126,10 +142,13 @@ class InterstateRequestService
 
             // 9. Create packages
             foreach ($packages as $index => $packageData) {
+                // Get original package data (before processPackages) for estimated values
+                $originalPackage = $data['packages'][$index] ?? [];
+
                 RequestPackage::create([
                     'request_id' => $request->id,
                     'package_index' => $index + 1,
-                    'description' => $packageData['description'] ?? null,
+                    'description' => $originalPackage['description'] ?? $packageData['description'] ?? null,
                     'actual_weight_kg' => $packageData['actual_weight_kg'],
                     'length_cm' => $packageData['length_cm'],
                     'width_cm' => $packageData['width_cm'],
@@ -138,10 +157,16 @@ class InterstateRequestService
                     'volumetric_weight_kg' => $packageData['volumetric_weight_kg'],
                     'chargeable_weight_kg' => $packageData['chargeable_weight_kg'],
                     'volumetric_divisor_used' => $route->getVolumetricDivisor(),
-                    'declared_value' => $packageData['declared_value'] ?? 0,
-                    'is_fragile' => $packageData['is_fragile'] ?? false,
-                    'requires_insurance' => $packageData['requires_insurance'] ?? false,
-                    'special_instructions' => $packageData['special_instructions'] ?? null,
+                    'declared_value' => $packageData['declared_value'] ?? $originalPackage['declared_value'] ?? 0,
+                    'is_fragile' => $originalPackage['is_fragile'] ?? $packageData['is_fragile'] ?? false,
+                    'requires_insurance' => $originalPackage['requires_insurance'] ?? $packageData['requires_insurance'] ?? false,
+                    'special_instructions' => $originalPackage['special_instructions'] ?? null,
+                    // Estimated values from user input
+                    'estimated_weight_kg' => $originalPackage['estimated_weight_kg'] ?? $packageData['actual_weight_kg'],
+                    'estimated_length_cm' => $originalPackage['estimated_length_cm'] ?? $packageData['length_cm'],
+                    'estimated_width_cm' => $originalPackage['estimated_width_cm'] ?? $packageData['width_cm'],
+                    'estimated_height_cm' => $originalPackage['estimated_height_cm'] ?? $packageData['height_cm'],
+                    'estimated_declared_value' => $originalPackage['estimated_declared_value'] ?? $packageData['declared_value'] ?? 0,
                 ]);
             }
 
@@ -354,18 +379,23 @@ class InterstateRequestService
      * Estimate local delivery price
      */
     private function estimateLocalDeliveryPrice(
-        float $fromLat,
-        float $fromLng,
-        float $toLat,
-        float $toLng
+        ?float $fromLat,
+        ?float $fromLng,
+        ?float $toLat,
+        ?float $toLng
     ): float {
+        // If coordinates are missing or zero, return default local estimate
+        if (!$fromLat || !$fromLng || !$toLat || !$toLng) {
+            return 1500.00; // Default local delivery estimate (NGN)
+        }
+
         // Calculate distance using Haversine formula
         $distance = $this->calculateDistance($fromLat, $fromLng, $toLat, $toLng);
-        
+
         // Base price calculation (simplified - use actual Tagxi pricing logic)
         $basePrice = 500; // Base fare
         $perKmRate = 100; // Per km rate
-        
+
         return $basePrice + ($distance * $perKmRate);
     }
 

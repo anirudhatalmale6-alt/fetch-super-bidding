@@ -622,12 +622,37 @@ class Request extends Model
     }
 
     /**
+     * Derive status from boolean flags and timestamps
+     * Since requests table uses is_completed/is_cancelled instead of a status column
+     */
+    public function getStatusAttribute(): string
+    {
+        if ($this->is_cancelled) {
+            return 'cancelled';
+        }
+        if ($this->is_completed) {
+            return 'completed';
+        }
+        if ($this->accepted_at && $this->driver_id) {
+            return 'in_progress';
+        }
+        if ($this->delivery_mode === 'interstate') {
+            // Interstate-specific statuses
+            if ($this->accepted_at) {
+                return 'confirmed';
+            }
+            return 'pending';
+        }
+        return 'pending';
+    }
+
+    /**
      * Check if request is in bidding phase
      */
     public function isInBiddingPhase(): bool
     {
-        return $this->delivery_mode === 'interstate' 
-            && $this->status === 'pending' 
+        return $this->delivery_mode === 'interstate'
+            && $this->status === 'pending'
             && ($this->bidding_timeout_at === null || $this->bidding_timeout_at->isFuture());
     }
 

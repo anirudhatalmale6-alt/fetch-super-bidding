@@ -16,11 +16,22 @@ class InterstateDeliveryController extends BaseController
 
     /**
      * Create a new interstate delivery request
-     * 
+     *
      * POST /api/v1/interstate/delivery/request
+     *
+     * Supports two formats:
+     * 1. Legacy: route_id + pick/drop coordinates + packages array
+     * 2. Structured (3-step Flutter form): pickup_state/destination_state + single package
      */
     public function createRequest(HttpRequest $request)
     {
+        // Detect format: structured if pickup_state is present
+        $isStructured = $request->has('pickup_state') || $request->has('destination_state');
+
+        if ($isStructured) {
+            return $this->createStructuredRequest($request);
+        }
+
         $validator = Validator::make($request->all(), [
             'route_id' => 'required|exists:supported_routes,id',
             'pick_address' => 'required|string|max:500',
@@ -30,7 +41,6 @@ class InterstateDeliveryController extends BaseController
             'drop_lat' => 'required|numeric|between:-90,90',
             'drop_lng' => 'required|numeric|between:-180,180',
             'packages' => 'required|array|min:1',
-            // Estimated values from user
             'packages.*.estimated_weight_kg' => 'required|numeric|min:0.1|max:1000',
             'packages.*.estimated_length_cm' => 'required|numeric|min:1|max:500',
             'packages.*.estimated_width_cm' => 'required|numeric|min:1|max:500',
@@ -50,33 +60,147 @@ class InterstateDeliveryController extends BaseController
             return $this->respondWithValidationErrors($validator);
         }
 
+        return $this->processCreateRequest($request->all());
+    }
+
+    /**
+     * Handle the structured 3-step Flutter form format
+     */
+    private function createStructuredRequest(HttpRequest $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'pickup_address' => 'required|string|max:500',
+            'pickup_state' => 'required|string|max:100',
+            'sender_phone' => 'required|string|max:20',
+            'destination_address' => 'required|string|max:500',
+            'destination_state' => 'required|string|max:100',
+            'recipient_phone' => 'required|string|max:20',
+            'estimated_weight_kg' => 'required|numeric|min:0.1|max:1000',
+            'estimated_length_cm' => 'required|numeric|min:1|max:500',
+            'estimated_width_cm' => 'required|numeric|min:1|max:500',
+            'estimated_height_cm' => 'required|numeric|min:1|max:500',
+            'estimated_goods_value' => 'nullable|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->respondWithValidationErrors($validator);
+        }
+
+        // Validate origin != destination
+        if (strtolower(trim($request->pickup_state)) === strtolower(trim($request->destination_state))) {
+            return $this->respondError('Origin and destination states must be different for interstate delivery.', 422);
+        }
+
+        // Auto-match a route based on origin/destination states
+        $route = \App\Models\Interstate\SupportedRoute::where('is_active', true)
+            ->where(function ($q) use ($request) {
+                $q->where('origin_state', 'LIKE', '%' . trim($request->pickup_state) . '%')
+                  ->where('destination_state', 'LIKE', '%' . trim($request->destination_state) . '%');
+            })
+            ->first();
+
+        if (!$route) {
+            // Try matching by city or create a generic route lookup
+            $route = \App\Models\Interstate\SupportedRoute::where('is_active', true)
+                ->where(function ($q) use ($request) {
+                    $q->where('origin_city', 'LIKE', '%' . trim($request->pickup_state) . '%')
+                      ->orWhere('origin_state', 'LIKE', '%' . trim($request->pickup_state) . '%');
+                })
+                ->where(function ($q) use ($request) {
+                    $q->where('destination_city', 'LIKE', '%' . trim($request->destination_state) . '%')
+                      ->orWhere('destination_state', 'LIKE', '%' . trim($request->destination_state) . '%');
+                })
+                ->first();
+        }
+
+        if (!$route) {
+            return $this->respondError(
+                'No supported route found from ' . $request->pickup_state . ' to ' . $request->destination_state . '. Please try a different route.',
+                422
+            );
+        }
+
+        // Convert structured format to legacy format for the service
+        // Map estimated_* to the keys the pricing service expects (actual_weight_kg, length_cm, etc.)
+        // and also preserve the estimated_* values for storage
+        $weight = (float) $request->estimated_weight_kg;
+        $length = (float) $request->estimated_length_cm;
+        $width = (float) $request->estimated_width_cm;
+        $height = (float) $request->estimated_height_cm;
+        $declaredValue = (float) ($request->estimated_goods_value ?? 0);
+
+        $data = [
+            'route_id' => $route->id,
+            'pick_address' => $request->pickup_address,
+            'pick_lat' => 0, // Geocoding not available from state-level input
+            'pick_lng' => 0,
+            'drop_address' => $request->destination_address,
+            'drop_lat' => 0,
+            'drop_lng' => 0,
+            'sender_phone' => $request->sender_phone,
+            'sender_name' => $request->sender_name ?? null,
+            'recipient_phone' => $request->recipient_phone,
+            'recipient_name' => $request->recipient_name ?? null,
+            'pickup_state' => $request->pickup_state,
+            'destination_state' => $request->destination_state,
+            'packages' => [[
+                // Keys the pricing service expects
+                'actual_weight_kg' => $weight,
+                'length_cm' => $length,
+                'width_cm' => $width,
+                'height_cm' => $height,
+                'declared_value' => $declaredValue,
+                'quantity' => 1,
+                // Also store estimated values for the DB
+                'estimated_weight_kg' => $weight,
+                'estimated_length_cm' => $length,
+                'estimated_width_cm' => $width,
+                'estimated_height_cm' => $height,
+                'estimated_declared_value' => $declaredValue,
+            ]],
+            'service_type' => 'standard',
+        ];
+
+        return $this->processCreateRequest($data);
+    }
+
+    /**
+     * Common logic to process and create the interstate request
+     */
+    private function processCreateRequest(array $data)
+    {
         try {
-            $data = $request->all();
             $data['user_id'] = auth()->id();
             $data['service_type'] = $data['service_type'] ?? 'standard';
 
             $interstateRequest = $this->requestService->createInterstateRequest($data);
-            
-            // Notify eligible trucking companies about new bidding opportunity
-            $this->notifyEligibleCompanies($interstateRequest);
+
+            // Notify eligible trucking companies about new bidding opportunity (non-critical)
+            try {
+                $this->notifyEligibleCompanies($interstateRequest);
+            } catch (\Exception $e) {
+                \Log::warning('Failed to notify companies: ' . $e->getMessage());
+            }
 
             return $this->respondSuccess([
                 'request_id' => $interstateRequest->id,
                 'request_number' => $interstateRequest->request_number,
                 'tracking_number' => $interstateRequest->request_number,
-                'status' => $interstateRequest->status,
+                'status' => 'pending',
                 'is_bidding_phase' => true,
                 'bidding_timeout_at' => $interstateRequest->bidding_timeout_at,
                 'currency' => 'NGN',
                 'route' => [
-                    'origin_hub' => $interstateRequest->originHub->hub_name,
-                    'destination_hub' => $interstateRequest->destinationHub->hub_name,
+                    'origin_hub' => $interstateRequest->originHub ? $interstateRequest->originHub->hub_name : null,
+                    'destination_hub' => $interstateRequest->destinationHub ? $interstateRequest->destinationHub->hub_name : null,
                 ],
                 'packages' => $interstateRequest->packages->map(fn($pkg) => [
                     'package_number' => $pkg->package_number,
-                    'estimated_weight_kg' => $pkg->estimated_weight_kg,
-                    'estimated_dimensions' => "{$pkg->estimated_length_cm} × {$pkg->estimated_width_cm} × {$pkg->estimated_height_cm} cm",
-                    'estimated_declared_value' => $pkg->estimated_declared_value,
+                    'weight_kg' => $pkg->actual_weight_kg ?? $pkg->estimated_weight_kg,
+                    'dimensions' => "{$pkg->length_cm} × {$pkg->width_cm} × {$pkg->height_cm} cm",
+                    'volumetric_weight_kg' => $pkg->volumetric_weight_kg,
+                    'chargeable_weight_kg' => $pkg->chargeable_weight_kg,
+                    'declared_value' => $pkg->declared_value ?? $pkg->estimated_declared_value,
                     'quantity' => $pkg->quantity,
                 ]),
                 'next_step' => 'waiting_for_bids',
@@ -406,7 +530,8 @@ class InterstateDeliveryController extends BaseController
 
         $interstateRequest = Request::where('user_id', auth()->id())
             ->where('delivery_mode', 'interstate')
-            ->whereIn('status', ['pending', 'confirmed'])
+            ->where('is_completed', false)
+            ->where('is_cancelled', false)
             ->findOrFail($requestId);
 
         // Cancel all pending legs
@@ -414,11 +539,11 @@ class InterstateDeliveryController extends BaseController
             ->where('status', 'pending')
             ->update(['status' => 'cancelled']);
 
-        // Update request status
+        // Update request as cancelled
         $interstateRequest->update([
-            'status' => 'cancelled',
+            'is_cancelled' => true,
             'cancelled_at' => now(),
-            'reason' => $request->input('reason'),
+            'cancel_method' => '0',
         ]);
 
         // TODO: Process refund based on cancellation policy
@@ -448,11 +573,13 @@ class InterstateDeliveryController extends BaseController
             return null;
         }
 
-        $hours = $request->service_type === 'express' 
-            ? $route->express_sla_hours 
-            : $route->standard_sla_hours;
+        $hours = $route->standard_sla_hours ?? 72;
 
-        return $request->trip_start_time->copy()->addHours($hours)->toIso8601String();
+        $startTime = $request->trip_start_time instanceof \Carbon\Carbon
+            ? $request->trip_start_time
+            : \Carbon\Carbon::parse($request->trip_start_time);
+
+        return $startTime->copy()->addHours($hours)->toIso8601String();
     }
 
     /**

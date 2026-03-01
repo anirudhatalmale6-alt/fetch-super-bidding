@@ -14,9 +14,12 @@ use App\Base\Constants\Masters\PushEnums;
 
 class InterstateBiddingController extends BaseController
 {
-    public function __construct(
-        private Database $database
-    ) {}
+    private ?Database $database;
+
+    public function __construct(?Database $database = null)
+    {
+        $this->database = $database;
+    }
 
     /**
      * Submit a bid for an interstate request (Company Side)
@@ -45,7 +48,8 @@ class InterstateBiddingController extends BaseController
 
         $interstateRequest = Request::where('id', $request->input('request_id'))
             ->where('delivery_mode', 'interstate')
-            ->where('status', 'pending')
+            ->where('is_completed', false)
+            ->where('is_cancelled', false)
             ->first();
 
         if (!$interstateRequest) {
@@ -74,11 +78,19 @@ class InterstateBiddingController extends BaseController
                 'expires_at' => now()->addHours(24),
             ]);
 
-            // Update Firebase for real-time updates
-            $this->syncBidToFirebase($bid);
+            // Update Firebase for real-time updates (non-critical)
+            try {
+                $this->syncBidToFirebase($bid);
+            } catch (\Exception $e) {
+                \Log::warning('Firebase sync failed for bid submission: ' . $e->getMessage());
+            }
 
-            // Notify user about new bid
-            $this->notifyUserOfNewBid($interstateRequest, $bid);
+            // Notify user about new bid (non-critical)
+            try {
+                $this->notifyUserOfNewBid($interstateRequest, $bid);
+            } catch (\Exception $e) {
+                \Log::warning('Push notification failed for new bid: ' . $e->getMessage());
+            }
 
             return $this->respondSuccess([
                 'bid_id' => $bid->id,
@@ -289,33 +301,31 @@ class InterstateBiddingController extends BaseController
                     'rejected_at' => now(),
                 ]);
 
-            // Update request status
+            // Update request with accepted bid info
             $bid->request->update([
-                'status' => 'company_assigned',
                 'trucking_company_id' => $bid->trucking_company_id,
                 'accepted_ride_fare' => $bid->total_bid_amount,
+                'accepted_at' => now(),
             ]);
 
-            // Create package for tracking
-            $package = \App\Http\Controllers\Web\Company\PackageController::createFromAcceptedBid(
-                $bid,
-                $bid->request,
-                $bid->truckingCompany,
-                null // driver_id will be assigned later
-            );
+            // Try to update Firebase (non-critical, don't fail if Firebase is unavailable)
+            try {
+                $this->syncBidAcceptanceToFirebase($bid);
+            } catch (\Exception $e) {
+                \Log::warning('Firebase sync failed for bid acceptance: ' . $e->getMessage());
+            }
 
-            // Update Firebase with package info
-            $this->syncBidAcceptanceToFirebase($bid, $package->goods_id);
-
-            // Notify company
-            $this->notifyCompanyOfBidAcceptance($bid);
+            // Notify company (non-critical)
+            try {
+                $this->notifyCompanyOfBidAcceptance($bid);
+            } catch (\Exception $e) {
+                \Log::warning('Push notification failed for bid acceptance: ' . $e->getMessage());
+            }
 
             return $this->respondSuccess([
                 'bid_id' => $bid->id,
                 'company_name' => $bid->truckingCompany->company_name,
                 'total_amount' => $bid->total_bid_amount,
-                'package_id' => $package->goods_id ?? null,
-                'package_goods_id' => $package->goods_id ?? null,
                 'next_step' => 'payment',
                 'tracking_status' => 'awaiting_pickup',
             ], 'Bid accepted successfully');
@@ -381,6 +391,8 @@ class InterstateBiddingController extends BaseController
      */
     private function syncBidToFirebase(InterstateBid $bid)
     {
+        if (!$this->database) return;
+
         $bidData = [
             'bid_id' => $bid->id,
             'company_id' => $bid->trucking_company_id,
@@ -405,6 +417,8 @@ class InterstateBiddingController extends BaseController
      */
     private function removeBidFromFirebase(InterstateBid $bid)
     {
+        if (!$this->database) return;
+
         $this->database
             ->getReference("interstate-bids/{$bid->request_id}/bids/company_{$bid->trucking_company_id}")
             ->remove();
@@ -415,6 +429,8 @@ class InterstateBiddingController extends BaseController
      */
     private function syncBidAcceptanceToFirebase(InterstateBid $bid, ?string $packageId = null)
     {
+        if (!$this->database) return;
+
         $updateData = [
             'accepted_bid_id' => $bid->id,
             'status' => 'accepted',
