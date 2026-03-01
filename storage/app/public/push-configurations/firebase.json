@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "test",
+  "private_key_id": "e8a363a805654545545f5c86d",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDbjIMNctTGYaJ9\nr4ad1uOFIYS2ivrEB6PcSdQbb7Zasi33dUjixmUA3UrbmF3RGxHuuRlppu+sjdD4\nCXidVxJ8Oeux5ZfUDqmuaBcT/Bk/kRJCyFfh1dZ54aot+/KHk5Ir1sJJhNX/T1mK\nlb2xecQyBgAbMAJFif3TF6q6lT2Mtnqz8HQjm6fV5DaCZpzZa4/pKIxnrp3ozdGj\n2tvRNmC3MIbnj\nLksGCTckBzwVEDlWc3rstsm6V8aRSlQozx+0KNPuOQKBgQD/B/872UTW8HHlpHuJ\nO7ptr9kzMvZa5vP64FtDT6luba7oj6+1Q+/utrUgqtgLmreQ+P2u1VlLJBD1ihjt\nUzw4LqB8ZGoaeXCikNz8ZpHndvlqcE/ohA+Hx4nq8KpjlJ6X7BaLbyqJWFQvjThO\nbmz6kQBUY9M+FjFxLU+d4CM3+QKBgQDcYgKo4tI2qln/3+91R1kOjO+YQP92zPmn\nGKabLrMLMyarhF8FA3wRP5gN0cwyNT/rqEj32l8lECV1CiOljYaTvZNUcCCAhTIG\n2DRhyGn9OIG+V3j7Tb0FavgGZnCskjhDuFmOxDh951piR94GPhdG0v7QUMwU8qH0\n2owtVOMZ6wKBgDtOGMRKGgABmfrU7QVUpl2rbs7BIxiwbDwCwDY+6B+N0gayoyF7\n0ueoBSa7k9HfAKDtxdBKPKGEmYz/uBw4JuDJtvg2QZY2d0LWfQ0URrOBdSk\naYVGGhZxGwIL2DuTCS5v5HMpteeQ+FX2SnOd/rE2/w0b4rd28IigqTqVavEjbJZs\nDbkKMJ0AUz947/haD4I6hStgEuXz7uG4639OrTmSXDrLXgaldZ6z805tEfw3TAO3\nwvB8s15h6H9kc07jLfrTMdM=\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-ymule@super-bidding.iam.gserviceaccount.com",
+  "client_id": "10605798151454507629097",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ymule%40super-bidding.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

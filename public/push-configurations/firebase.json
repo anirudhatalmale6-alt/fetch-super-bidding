@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "super-bidding-36541",
+  "private_key_id": "55368b54545550fdcc66",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDM3DL8VkS2FdR7\ngFYaqBQAUsF9KyAS7viLVwTkVG5O8NkHu3uwCa0+qkg+MpenUADx979kNlTK79DE\nIGpf/valwXIjxUBk2gSPCVjrNDFvm0FIZWKvHYu9TG9\nsrIG9ukVXXlvIZXRLhvZy68zrxcxy+VuiJCVJd1GlzD+azqHDZBX2D/puaWIzOhs\nqezLoEIP4ksAuA0/U5ZD8WOMGkevI7+GBsoXz3jThGsREHjO6PKjeKiViMrj7mdM\nEInov/ExIzDetYkJCEqz9PkaaQKBgQDf2fXZ4ZLPlaymhXzI+DwFu7QkCUcXXC62\nulaOUfvOTueMfobtmN5STjlY4AP9o+RnxRYk4WUbsLddRx6oGiULFOjr9M8EfSwH\nMUxj97AhAX1gc1laZQzlr2IkqBmUN4tBi2Frzw7j6tsru9SC4d26SzSF7s9maZ+E\nOICGabaJPwKBgQCSeinb2PKK6JT/sP/DeglCv3dli0bUS6xO18RD/MxyxQL8eF3f\nKPU0uzLI4tiYCVTTgZCAy8zSBedQS8T5w5gwi+ch5Ts9nNVzhYBKxI6X1wqAnxos\n4uvRzT7fCEikp6bQvuaNfG/y5k7sCW9+KE0BP5i+PyFb7SZbhlqmfwCMGQKBgEeA\n0d1FBqY0Qy/118RCNroGGSahqAm4Mlu/7cIMQgjGf4QLLoJaoDleL0dKVzv/zAex\nlr81GBzeN9Qd0ZcUstx1U2l7i1z9tsCdaK9OAP6qASh78ADF4nbDrO/UmkcT7vGC\n2h2byD/ZVyUDHICqMS8+sopNnAY0mvWbLsLApcPFVSFhAwaJU9uWWF2kbmv2mEp7QhzBxQbSaUK7IOUYSDL1a2GaqPQE6R\n1OjY0BJJkNd/pyoLlteoFHn3OgRjE717UkCjlpH/fOxryiowasxfCLNIkOCKBXiE\n2YCyzb8Pptqo1kaJLWRp5TOM\n-----END PRIVATE KEY-----\n",
+  "client_email": "firebase-adminsdk-fuicn@super-bidding-36541.iam.gserviceaccount.com",
+  "client_id": "10762765155480",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fuicn%40super-bidding-36541.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}

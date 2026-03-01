@@ -1,0 +1,1717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no">
+<link href="assets/images/logo.png" rel="icon" />
+<title>Documentation | Tagxi-Super-Bidding</title>
+<meta name="description" content="Your ThemeForest item Name and description">
+<meta name="author" content="harnishdesign.net">
+
+<!-- Stylesheet
+============================== -->
+<!-- Bootstrap -->
+<link rel="stylesheet" type="text/css" href="assets/vendor/bootstrap/css/bootstrap.min.css" />
+<!-- Font Awesome Icon -->
+<link rel="stylesheet" type="text/css" href="assets/vendor/font-awesome/css/all.min.css" />
+<!-- Magnific Popup -->
+<link rel="stylesheet" type="text/css" href="assets/vendor/magnific-popup/magnific-popup.min.css" />
+<!-- Highlight Syntax -->
+<link rel="stylesheet" type="text/css" href="assets/vendor/highlight.js/styles/github.css" />
+<!-- Custom Stylesheet -->
+<link rel="stylesheet" type="text/css" href="assets/css/stylesheet.css" />
+</head>
+
+<body data-spy="scroll" data-target=".idocs-navigation" data-offset="125">
+
+<!-- Preloader -->
+<div class="preloader">
+  <div class="lds-ellipsis">
+    <div></div>
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+</div>
+<!-- Preloader End --> 
+
+<!-- Document Wrapper   
+=============================== -->
+<div id="main-wrapper"> 
+  
+  <!-- Header
+  ============================ -->
+  <header id="header" class="sticky-top"> 
+    <!-- Navbar -->
+    <nav class="primary-menu navbar navbar-expand-lg navbar-dropdown-dark">
+      <div class="container-fluid">
+        <!-- Sidebar Toggler -->
+    <button id="sidebarCollapse" class="navbar-toggler d-block d-md-none" type="button"><span></span><span class="w-75"></span><span class="w-50"></span></button>
+    
+    <!-- Logo --> 
+        <a class="logo ml-md-3" href="index.html" title="iDocs Template"> <img src="assets/images/logo.png" alt="iDocs Template"/> </a> 
+    <span class="text-2 ml-2">v1.0</span> 
+        <!-- Logo End -->
+        
+    <!-- Navbar Toggler -->
+    <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#header-nav"><span></span><span></span><span></span></button>
+        
+      </div>
+    </nav>
+    <!-- Navbar End --> 
+  </header>
+  <!-- Header End --> 
+  
+  <!-- Content
+  ============================ -->
+  <div id="content" role="main">
+    
+      <!-- Sidebar Navigation
+  ============================ -->
+  <div class="idocs-navigation bg-light">
+      <ul class="nav flex-column ">
+        <li class="nav-item"><a class="nav-link active" href="#idocs_start">Server-Installation</a>
+          <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="#idocs_installation">Introduction</a></li>
+            <li class="nav-item"><a class="nav-link" href="#installation-instructions">Installation Instructions</a></li>
+            <li class="nav-item"><a class="nav-link" href="#create-vps-server">Create VPS Server</a></li>
+            <li class="nav-item"><a class="nav-link" href="#enable-ports">Add Security groups</a></li>
+            <li class="nav-item"><a class="nav-link" href="#install-apache">Install Apache Setup</a></li>
+            <li class="nav-item"><a class="nav-link" href="#install-php">Install PHP8.1 & above</a></li>
+            <li class="nav-item"><a class="nav-link" href="#install-mysql">Install mysql</a></li>
+            <li class="nav-item"><a class="nav-link" href="#install-phpmyadmin">Install phpmyadmin</a></li>
+            <li class="nav-item"><a class="nav-link" href="#install-composer">Install composer</a></li>
+          
+            <li class="nav-item"><a class="nav-link" href="#install-supervisor">Setup Laravel Supervisor</a></li>
+                      </ul>
+        </li>
+
+         <li class="nav-item"><a class="nav-link" href="#backend-setup">Backend Setup </a>
+          <ul class="nav flex-column">
+      <li class="nav-item"><a class="nav-link" href="#backend-setup">Introduction</a></li>
+      <li class="nav-item"><a class="nav-link" href="#map-configuration">Map Setup</a></li>
+      <li class="nav-item"><a class="nav-link" href="#backend-firebase-configuration">Firebase Config</a></li>
+      <li class="nav-item"><a class="nav-link" href="#queue-setup">Queue Setup</a></li>
+         </ul>
+        </li>
+
+        <li class="nav-item"><a class="nav-link" href="#usermanual">User Manual</a>
+          <ul class="nav flex-column">
+      <li class="nav-item"><a class="nav-link" href="#admin-dashboard">Admin-Dashboard</a></li>
+      <li class="nav-item"><a class="nav-link" href="#service-location-management">Service Location Management</a></li>
+      <li class="nav-item"><a class="nav-link" href="#geofenig-and-prcing">Geofencing & Pricing</a></li>
+      <li class="nav-item"><a class="nav-link" href="#admin-driver-user-management">Admin,Driver & Users Management</a></li>
+      <li class="nav-item"><a class="nav-link" href="#trip-request-management">Trip Requests Management</a></li>
+      <li class="nav-item"><a class="nav-link" href="#promo-management">Promo Management</a></li>
+      <li class="nav-item"><a class="nav-link" href="#custom-notifications">Custom Notifications</a></li>
+      <li class="nav-item"><a class="nav-link" href="#cancellation-and-complaints">Cancellation & complaints</a></li>
+      <li class="nav-item"><a class="nav-link" href="#reports">Reports</a></li>
+      <li class="nav-item"><a class="nav-link" href="#system-settings">System settings</a></li>
+
+
+         </ul>
+        </li>
+       
+        <li class="nav-item"><a class="nav-link" href="#flutter-android-setup">Flutter Android Setup</a>
+          <ul class="nav flex-column">
+      <li class="nav-item"><a class="nav-link" href="#flutter-setup-instructions">Setup Instructions</a></li>
+      <li class="nav-item"><a class="nav-link" href="#flutter-change-base-url">Change Base Url</a></li>
+      <li class="nav-item"><a class="nav-link" href="#flutter-change-app-color">Change App Color</a></li>
+      <li class="nav-item"><a class="nav-link" href="#change-website-url">Change Website URL</a></li>
+      <li class="nav-item"><a class="nav-link" href="#flutter-google-map-cloud-setup">Google Map & Cloud Configure</a></li>
+      <li class="nav-item"><a class="nav-link" href="#change-package-name">Change Package Name</a></li>
+      <li class="nav-item"><a class="nav-link" href="#change-icons">Change Icons</a></li>
+      <li class="nav-item"><a class="nav-link" href="#change-display-name">Change Display name</a></li>
+      <li class="nav-item"><a class="nav-link" href="#change-app-version">Change app version</a></li>
+      <li class="nav-item"><a class="nav-link" href="#create-release-keys">Create release keys</a></li>
+      <li class="nav-item"><a class="nav-link" href="#replace-the-jks-keys">Replace the jks key</a></li>
+      <li class="nav-item"><a class="nav-link" href="#generate-sha-1">Generate SHA-1</a></li>
+      <li class="nav-item"><a class="nav-link" href="#google-map-services-setup">Google Map Services Setup</a></li>
+      <li class="nav-item"><a class="nav-link" href="#generate-apk">Generate APK</a></li>
+      <li class="nav-item"><a class="nav-link" href="#generate-bundle-file">Generate bundle file</a></li>
+      <li class="nav-item"><a class="nav-link" href="#final-setups">Final Steps</a></li>
+         </ul>
+        </li>
+
+        <li class="nav-item"><a class="nav-link" href="#flutter-ios-setup">Flutter IOS Setup</a>
+          <ul class="nav flex-column">
+      <li class="nav-item"><a class="nav-link" href="#flutter-ios-setup-instructions">Setup Instructions</a></li>
+      <li class="nav-item"><a class="nav-link" href="#flutter-major-things-to-do">Major things to Do</a></li>
+               </ul>
+        </li>
+
+        <li class="nav-item"><a class="nav-link" href="#flutter-push-setup">Flutter Push Notifications</a>
+          
+        </li>
+
+
+    <li class="nav-item"><a class="nav-link" href="#flutter-translation-setup">Flutter Translations</a>
+          <ul class="nav flex-column">
+      <li class="nav-item"><a class="nav-link" href="#flutter-translation-setup-instructions">Setup Instructions</a></li>
+               </ul>
+        </li>
+
+    <li class="nav-item"><a class="nav-link" href="#idocs_changelog">Changelog</a>
+      <ul class="nav flex-column">
+            <li class="nav-item"><a class="nav-link" href="#v1-0">v1.0</a></li>
+          </ul>
+    </li>
+      </ul>
+    </div>
+
+
+    <!-- Docs Content
+  ============================ -->
+    <div class="idocs-content">
+      <div class="container"> 
+        
+        <!-- Getting Started
+    ============================ -->
+        <section id="idocs_start">
+        <h1>Documentation</h1>
+        <h2>Tagxi Super Bidding- Complete Bidding Taxi + Delivery Booking Solution </h2>
+        <p class="lead">Thank you so much for purchasing our item from codecanyon.</p>
+    <hr>
+    <div class="row">
+      <div class="col-sm-6 col-lg-4">
+        <ul class="list-unstyled">
+          <li><strong>Version:</strong> 1.0</li>
+          <li><strong>Author:</strong> <a href="https://codecanyon.net/user/mobilityintelligencesoftwares/portfolio" target="_blank">MobilityIntelligenceSoftwares</a></li>
+        </ul>
+      </div>
+      <div class="col-sm-6 col-lg-4">
+        <ul class="list-unstyled">
+          <li><strong class="font-weight-700">Created:</strong> 08 June, 2023</li>
+          <li><strong class="font-weight-700">Updated:</strong> 05 September, 2023</li>
+          <li><strong class="font-weight-700">Updated:</strong> 24 September, 2023</li>
+          <li><strong class="font-weight-700">Updated:</strong> 11 October, 2023</li>
+          <li><strong class="font-weight-700">Updated:</strong> 04 November, 2023</li>
+          <li><strong class="font-weight-700">Updated:</strong> 12 December, 2023</li>
+          <li><strong class="font-weight-700">Updated:</strong> 01 January, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 09 February, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 10 February, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 11 March, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 03 April, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 10 April, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 20 May, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 06 June, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 24 June, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 09 July, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 01 August, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 24 August, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 30 September, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 15 November, 2024</li>
+          <li><strong class="font-weight-700">Updated:</strong> 28 February, 2025</li>
+          <li><strong class="font-weight-700">Updated:</strong> 29 March, 2025</li>
+          <li><strong class="font-weight-700">Updated:</strong> 26 May, 2025</li>
+
+          <li><strong>Updated:</strong> 20 August, 2025</li>
+          <li><strong>Updated:</strong> 24 October, 2025</li>
+        </ul>
+      </div>
+    </div>
+        <p class="alert alert-info">If you have any questions that are beyond the scope of this help file, Please feel free to email via <a target="_blank" href="https://tagyourtaxi.com/contact-us">Item Support Page</a>.</p>
+
+         <p class="alert alert-warning">Please use the following updated document for an easy installation <a target="_blank" href="https://tagxi-docs.ondemandappz.com/user-manual/1.0/server-setup">Setup Document</a>.</p>
+
+         <h3><strong>Video Tutorials</strong></h3>
+  <a href="https://youtube.com/playlist?list=PL9W4itTd3tG-xwbtty6uV9qNMwohORdtR" target="_blank">Server Setup video Tutorial</a>
+
+      <br>
+      <br>
+
+      <a href="https://youtube.com/playlist?list=PL9W4itTd3tG9fsyK8v-lR4HzLGwVvW24w" target="_blank">Flutter Setup Tutorial</a>
+
+      <br>
+
+        </section>
+        
+    <hr class="divider">
+    
+        <!-- Installation
+    ============================ -->
+        <section id="idocs_installation">
+          <h2>Server Installation</h2>
+          <p class="lead">We are strongly suggested AWS VPS with ubuntu OS. Because it is quite easy to setup and maintain. For an AWS we can create EC2 T2 medium or large instance. After created an instance from AWS. we need to install the required softwares below.</p>
+        </section>
+        
+        <hr class="divider">
+    
+        <!-- Installation
+    ============================ -->
+        <section id="installation-instructions">
+          <h2>Installation Instruction</h2>
+          <p class="lead">Follow the steps below to setup your admin app:</p>
+          <ol>
+            <li>Create VPS Server with Ubunutu OS</li>
+            <li>Enable Ports</li>
+            <li>Install Apache</li>
+            <li>Install PHP8.1</li>
+            <li>Install mysql</li>
+            <li>Install phpmyadmin</li>
+            <li>Install composer</li>
+            <li>Setup Laravel Supervisor</li>
+                    
+          </ol>
+        </section>
+        
+
+        <hr class="divider">
+    
+        <!-- Create VPS Server
+    ============================ -->
+        <section id="create-vps-server">
+          <h2>Create VPS Server</h2>
+          <p class="lead">We prefer AWS/Digitalocean server for better experience, You can use any VPS server with ubuntu OS</p>
+
+          <h3> Required Configurations</h3>
+          <ol>
+            <li><code>Ram:</code>Minimum 4GB </li>
+            <li><code>Storage:</code>Minimum 30GB </li>
+            <li><code>Operating Systems:</code>Ubuntu 20.4</li>
+          </ol>
+        </section>
+        
+    <hr class="divider">
+
+       <!-- Enable Ports
+    ============================ -->
+        <section id="enable-ports">
+          <h2>Enable Ports</h2>
+          <p class="lead">We need some ports should be opened in the server for our backend application running</p>
+
+          <h3> Required Ports</h3>
+          <ol>
+            <li><code>SSL:</code>443</li>
+            <li><code>Apache:</code>80</li>
+            <li><code>Jenkins:</code>8080</li>
+          </ol>
+        </section>
+        
+    <hr class="divider">
+
+    <!-- Enable Ports
+    ============================ -->
+        <section id="install-apache">
+          <h2>Install Apache</h2>
+          <p class="lead">Follow the below steps to setup apache</p>
+
+          <ol>
+            <li>Open the ssh terminal using pemfile of your aws instance</li>
+            <li>Run <code>sudo apt install apache2</code> to install an apache2</li>
+            <li>Run <code>sudo apt update</code></li>
+            <li>Run <code>"sudo nano /etc/apache2/sites-available/000-default.conf"</code> to edit the config follow next step.
+            </li>
+            
+
+           <p> <code> &lt;Directory /var/www/html &gt;
+                <br> 
+                Options -Indexes <br>
+                AllowOverride All <br>
+                Require all granted <br>
+                ErrorDocument 403 "You Don't have a permission to access this URL" <br>
+                ErrorDocument 404 "Requesting Page not Found. Contact admin for further details" <br>
+          &lt;/Directory /var/www/html &gt; </code></p>
+
+
+              <li>Run <code>sudo service apache2 restart</code> to restart the apache2.</li>
+
+              <strong>Reference Link : <a href="https://www.digitalocean.com/community/tutorials/how-to-install-the-apache-web-server-on-ubuntu-20-04">https://www.digitalocean.com/community/tutorials/how-to-install-the-apache-web-server-on-ubuntu-20-04 </a></strong>
+
+          </ol>
+        </section>
+        
+    <hr class="divider">
+
+        <!-- Install PHP 8.1
+    ============================ -->
+        <section id="install-php">
+          <h2>Install PHP 8.1</h2>
+          <p class="lead">Please follow the instrctions from the reference link below. And Install the php extensions below.</p>
+
+          <h3> Required Extensions</h3>
+          <ol>
+            <li>bcmath,bz2,intl,gd,mbstring,mysql,zip,fpm,curl,xml</li>
+          </ol>
+      Reference Link : <a href="https://computingforgeeks.com/how-to-install-php-on-ubuntu/">https://computingforgeeks.com/how-to-install-php-on-ubuntu/</a>
+
+        </section>
+        
+    <hr class="divider">
+
+            <!-- Install PHP 7.3 above
+    ============================ -->
+        <section id="install-mysql">
+          <h2>Install Mysql</h2>
+          <p class="lead">Please follow the instrctions from below.</p>
+
+          <ol>
+            <li><code>sudo apt-get update</code></li>
+            <li><code>sudo apt-get install mysql-server</code></li>
+            <li><code>mysql_secure_installation</code></li>
+            <li><code>sudo service mysql restart</code></li>
+          </ol>
+
+          <p class="lead">To create a new user for mysql</p>
+          <ol>
+            <li><code>sudo mysql -u root</code></li>
+            <li><code>use mysql;</code></li>
+            <li><code>GRANT ALL ON *.* TO 'taxi_user'@'%' IDENTIFIED BY 'TaxiUser@123' WITH GRANT OPTION;</code></li>
+            <li><code>FLUSH PRIVILEGES;</code></li>
+          </ol>
+      Reference Link : <a href="Reference Link : https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04">Reference Link : https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-20-04</a>
+
+        </section>
+        
+    <hr class="divider">
+
+     <!-- Install PHPMyadmin
+    ============================ -->
+        <section id="install-phpmyadmin">
+          <h2>Install PhpMyadmin</h2>
+          <p class="lead">Please follow the instrctions below.</p>
+
+          <ol>
+            <li>>Open the path <code>var/www/html</code> and dowonload the phpmyadmin package using below command.</li>
+            <li><code>sudo wget https://files.phpmyadmin.net/phpMyAdmin/5.0.1/phpMyAdmin-5.0.1-all-languages.zip</code></li>
+            <li>Unzip the downloaded package and rename it to "pma".</li>
+          </ol>
+        </section>
+        
+    <hr class="divider">
+
+         <!-- Install Composer
+    ============================ -->
+        <section id="install-composer">
+          <h2>Install Composer</h2>
+          <p class="lead">Please follow the instrctions from the reference link below.</p>
+
+          Reference Link: <a href="https://www.digitalocean.com/community/tutorials/how-to-install-and-use-composer-on-ubuntu-20-04">https://www.digitalocean.com/community/tutorials/how-to-install-and-use-composer-on-ubuntu-20-04</a>
+
+          
+        </section>
+        
+    <hr class="divider">
+
+         <!-- Install Jenkins
+    ============================ -->
+        <section id="install-jenkins">
+          <h2>Install Jenkins</h2>
+          <p class="lead">jenkins is used to upload the backend app code to the server via git repo.</p>
+
+          <p>To install jenkins you need to install JAVA. to install java run this command "sudo apt install openjdk-8-jdk"</p>
+
+          <p class="lead">Follow the instructions from the reference link below. and skip the firewal setup.</p>
+
+          Reference Link: <a href="https://www.digitalocean.com/community/tutorials/how-to-install-jenkins-on-ubuntu-20-04">https://www.digitalocean.com/community/tutorials/how-to-install-jenkins-on-ubuntu-20-04</a>
+  
+        </section>
+        
+        
+    <hr class="divider">
+
+     <!-- Laravel supervisor setup
+    ============================ -->
+        <section id="install-supervisor">
+          <h2>Laravel supervisor setup</h2>
+          <p class="lead">Follow the instructions from the reference link below.</p>
+
+          
+          Reference Link: <a href="https://laravel.com/docs/8.x/queues#supervisor-configuration">https://laravel.com/docs/8.x/queues#supervisor-configuration</a>
+  
+        </section>
+        
+  
+    <hr class="divider">
+
+     <!--Backend Setup
+    ============================ -->
+        <section id="backend-setup">
+          <h2>Introduction</h2>
+          <p class="lead">You are almost finished and ready to setup your back end part. once you setup jenkins and taken a build.</p>
+
+          <p>Setup Instructions</p>
+          <ol>
+            <li>rename the <code>.env-example file to ".env" </code></li>
+            <li>Create a database using phpmyadmin</li>
+            <li>Setup DB config in .env file</li>
+            <li>Sample .env file</li>
+<code>APP_NAME=super</code> <br>
+<code>APP_ENV=local</code><br>
+<code>APP_KEY=base64:8zIYjbZv9brVUOy0XdixW2Oxpkg7S7DCe20ptOMbaRU=</code><br>
+<code>APP_DEBUG=true</code><br>
+<code>APP_URL=http://localhost/tyt-truck/public</code><br>
+<code>LOG_CHANNEL=daily</code><br>
+<code>SYSTEM_DEFAULT_TIMEZONE=Asia/Kolkata</code><br>
+<code>SYSTEM_DEFAULT_CURRENCY = 'INR'</code><br>
+<code>APP_FOR=production</code><br>
+<code>DB_CONNECTION=mysql</code><br>
+<code>DB_HOST=127.0.0.1</code><br>
+<code>DB_PORT=3306</code><br>
+<code>DB_DATABASE=rovon</code><br>
+<code>DB_USERNAME=tyt_user</code><br>
+<code>DB_PASSWORD=tyt_user@2020</code><br>
+<code>BROADCAST_DRIVER=log</code><br>
+<code>CACHE_DRIVER=array</code><br>
+<code>QUEUE_CONNECTION=database</code><br>
+<code>SESSION_DRIVER=file</code><br>
+<code>SESSION_LIFETIME=120</code><br>
+<code>MAIL_MAILER=smtp</code><br>
+<code>MAIL_HOST=smtp.sendgrid.net</code><br>
+<code>MAIL_PORT=587</code><br>
+<code>MAIL_USERNAME=username</code> <br>
+<code>MAIL_PASSWORD=SG.TFEnuSBS65fg.qAmjKNd4LUxxowWdtklHgamytGu_mIBGMQhHVINFZiY</code> <br>
+<code>MAIL_ENCRYPTION=tls</code><br>
+<code>MAIL_FROM_ADDRESS=suport@tagxi.com</code><br>
+<code>MAIL_FROM_NAME="tagxi"</code><br>
+<code>AWS_ACCESS_KEY_ID=</code><br>
+<code>AWS_DEFAULT_REGION=us-east-1</code> <br>
+<code>AWS_BUCKET=</code> <br>
+<code>FILESYSTEM_DRIVER=local</code> <br>
+<code>SMS_PROVIDER=log</code> <br>
+<code>DEFAULT_ALERT_EMAIL='tagxii2021@gmail.com'</code> <br>
+<code>FIREBASE_CREDENTIALS=/var/www/html/tagxi-super/public/push-configurations/firebase.json</code><br>
+<code>FIREBASE_DATABASE_URL=https://cabeie.firaseio.com/</code><br>
+<code>GOOGLE_MAP_KEY=AIzaSyBeVRuuicwooRpk7CEQCwu0OQowVt9I</code><br>
+<code>GOOGLE_SHEET_KEY = AIzaSyggE-WE-lwXhHJthZ6FleF1WQ3NmGAU</code><br>
+<code>DEFAULT_LAT=11.21215</code><br>
+<code>DEFAULT_LNG=76.54545</code><br>
+
+<li>Need to configure database config in .env file mentioned above.</li>
+<li>run the below commands to run the project.</li>
+    <code>composer install</code>
+    <code>php artisan migrate</code>
+    <code>php artisan db:seed</code>
+    <code>php artisan passport:install</code>
+    <code>php artisan storage:link</code>
+          </ol>
+
+
+<p>Once you have done all these steps, then its ready to use. Please use the below url for admin apps and dispatcher app </p>
+
+<strong>Admin App url: http://your-base-url/login</strong>
+<strong>Dispatcher App url: http://your-base-url/dispatch-login</strong>
+
+        </section>
+        
+    
+    <hr class="divider">
+
+     <!--Map Configuration
+    ============================ -->
+        <section id="map-configuration">
+          <h2>Map Configuration</h2>
+          <p class="lead">To create zone & see map view  & other map functionalities we need to add google map key in .env file. here is an example below.</p>
+
+          <code>GOOGLE_MAP_KEY=AIzaSyBeTRs1icwooRpk7ErjCEQCwu0OQowVt9J</code>
+      
+        </section>
+
+    <hr class="divider">
+
+
+     <!--Firebase Configuration======================= -->
+        <section id="backend-firebase-configuration">
+          <h2>Firebase Configuration</h2>
+          <ol>
+            <li class="lead">After created the account in firebase, you need to create realtime database by following the explanation in android setup document section.</li>
+
+            <li>After created the realtime database you need to copy the database url and paste it to the below .env variable</li>
+            <code>FIREBASE_DATABASE_URL=https://your-app.firebaseio.com/</code>
+
+            <p class="lead">To get realtime drivers from fiebase we need to config web app in firebase. so that we need to create web app.</p>
+
+            <img src="assets/images/user-manual-docs/firebase-create-web-app.png" class="img-fluid" alt="Responsive image">
+            <img src="assets/images/user-manual-docs/firebase-web-config.png" class="img-fluid" alt="Responsive image">
+
+          </ol>
+          
+      
+        </section>
+
+    <hr class="divider">
+
+    <!--Queue Setup======================= -->
+        <section id="queue-setup">
+          <h2>Queue Setup</h2>
+          <ol>
+            <li class="lead">for sending notifications & other stuffs we need to configure the supervisor setup to run the queue jobs in the server by following the document <a href="https://laravel.com/docs/8.x/queues#supervisor-configuration">https://laravel.com/docs/8.x/queues#supervisor-configuration</a></li>
+
+            <li>sample laraver-worker file</li>
+            <code>[program:laravel-worker]</code><br>
+<code>process_name=%(program_name)s_%(process_num)02d</code><br>
+<code>command=php /var/www/html/project-name/artisan queue:work --sleep=3 --tries=3</code><br>
+<code>autostart=true</code><br>
+<code>autorestart=true</code><br>
+<code>user=ubuntu</code><br>
+<code>numprocs=8</code><br>
+<code>redirect_stderr=true</code><br>
+<code>stdout_logfile=/var/www/html/project-name/worker.log</code><br>
+<code>stopwaitsecs=3600</code>
+          <li>We need to run cron jobs so that please open the cronjob file and enter the below line with your projrvt name.</li>
+          <li>to open cronjob file please use the following command "crontab -e"</li>
+          <code>* * * * * php /var/www/html/taxi artisan schedule:run >> /dev/null 2>&1</code>
+          </ol>
+          
+      
+        </section>
+
+    <hr class="divider">
+
+        <!--Translation Setup======================= -->
+        <section id="transportation-setup">
+          <h2>Translation Setup</h2>
+
+          <p class="lead">we have modified the translation package controller file for some reasons. so we have placed the controller file in the server-app folder named "Controller.php". you have to copy the file using below command or do the thing manually.</p>
+
+          <ol>
+          <li>cp  Controller.php vendor/barryvdh/laravel-translation-manager/src. </li>
+
+            <li>For Mobile Translation keywords you need to enable the translation sheet api in google cloud console & get the api key from there & paste in to our .environment value below like this.</li>
+
+            <code>GOOGLE_SHEET_KEY = AIzaGyBVE-WE-lwXhxWFHJthZ6FleF1WQ3NmGAV</code>
+            <code>GOOGLE_SHEET_ID = AIzaGyBVE-WE-lwXhxWFHJthZ6FleF1WQ3NmGAV</code>
+
+
+            <li>sample laraver-worker file</li>
+            <code>[program:laravel-worker]</code><br>
+<code>process_name=%(program_name)s_%(process_num)02d</code><br>
+<code>command=php /var/www/html/project-name/artisan queue:work --sleep=3 --tries=3</code><br>
+<code>autostart=true</code><br>
+<code>autorestart=true</code><br>
+<code>user=ubuntu</code><br>
+<code>numprocs=8</code><br>
+<code>redirect_stderr=true</code><br>
+<code>stdout_logfile=/var/www/html/project-name/worker.log</code><br>
+<code>stopwaitsecs=3600</code>
+          <li>We need to run cron jobs so that please open the cronjob file and enter the below line with your projrvt name.</li>
+          <li>to open cronjob file please use the following command "crontab -e"</li>
+          <code>* * * * * php /var/www/html/taxi artisan schedule:run >> /dev/null 2>&1</code>
+          </ol>
+          
+      
+        </section>
+
+    <hr class="divider">
+
+
+
+      <section id="usermanual">
+        <h1>Introduction</h1>
+        <p class="lead">Tagxi is a taxi ride hailing based system that provides services such as Transportation and Ride Sharing system.
+Tagxi provides client with all the much needed service like transportation, booking different kinds of vehicles, booking parameters and booking details. our application supports multiple currency and multiple timezone, so you can launch this application world wide. And tagxi supports multilingual as well. you can also customise the localisation contents through translation option in our admin app.</p>
+    <hr>
+    <div class="row">
+      <h3>Major Modules are</h3> <br>
+      <ol>
+        <li>Dashboard</li>
+        <li>Service Location Management</li>
+        <li>Geofencing & Pricing</li>
+        <li>Admin,Driver & Users Management</li>
+        <li>Trip Requests Management</li>
+        <li>Custom Notifications</li>
+        <li>Cancellation & complaints</li>
+      </ol>
+    </div>
+        
+        </section>
+
+    <hr class="divider">
+
+           <section id="admin-dashboard">
+        <h1>Dashboard</h1>
+        <p class="lead">Dashboard which helps to manage your whole application there you can see how many users & drivers. trip overview & Earnings overview of the current year.</p>
+
+        <img src="assets/images/user-manual-docs/admin-dashboard.png" class="img-fluid" alt="Responsive image">
+        
+        </section>
+    <hr class="divider">
+
+     <section id="service-location-management">
+        <h1>Service Location Management</h1>
+        <p class="lead">Service location represents the area of your service. that is where the service is going to launch. you can restrict the users by setting the service lcoation. only the service available area's users could be used our application other users cannot use our application.</p>
+
+        <p>You can set unique currency & timzone for each service location. so that you can launch our application world wide.</p> <br>
+        <p>please refer the following image to create a service location.</p> <br>
+
+        <img src="assets/images/user-manual-docs/create-service-location.png" class="img-fluid" alt="Responsive image">
+        
+        </section>
+    <hr class="divider">
+
+      <section id="geofenig-and-prcing">
+        <h1>Geofencing & Pricing</h1>
+        <p class="lead">Geofencing which helps to create a zone in service location. you can draw multiple zone as polygon on a map in each service location. only the polygon contains area's could be use our application, other area will resemble that is service not available at this location.</p>
+
+        <p>Here we are providing an Edit & zone map view options as well, by using these option you can see the drawn zone and also you can edit the coordinates for each zone at any time.
+      </p> <br>
+        <p>Please refer the following image to create a zone.</p> <br>
+        
+        <img src="assets/images/user-manual-docs/create-zone.png" class="img-fluid" alt="Responsive image">
+        <img src="assets/images/user-manual-docs/list-zones.png" class="img-fluid" alt="Responsive image">
+          
+        <p>Before Getting in to the Pricing we need to create a Vehicle types for the system. please refer the below image to create a vehicle types.</p>
+        <img src="assets/images/user-manual-docs/list-vehicle-types.png" class="img-fluid" alt="Responsive image">
+        <img src="assets/images/user-manual-docs/create-vehicle-type.png" class="img-fluid" alt="Responsive image">   
+
+        <h3>Set Price</h3>
+        <p class="lead">After createing the vehicle types & zone we need to set price for each vehicle types for each zone.
+while set price to the particular zone you can also set some configurations like if you want to allow only cash trip in a particular zone you can choose payment types as only cash. you can set three options i.e `cash,card,wallet`.</p>   
+        <img src="assets/images/user-manual-docs/set-price-lists.png" class="img-fluid" alt="Responsive image">   
+        <img src="assets/images/user-manual-docs/set-pricing.png" class="img-fluid" alt="Responsive image">   
+
+        </section>
+    <hr class="divider">
+      
+        <section id="geofenig-view">
+        <h1>Geofencing View</h1>
+        <p class="lead">Under Geofencing view there are two types of view we have developed these are one is God's Eye and another one is heat map.</p>
+
+        <p>God's Eye is help us to see how many drivers are available & busy, the driver markers could be updated in realtime using geofire.</p>
+
+
+        <img src="assets/images/user-manual-docs/gods-eye.png" class="img-fluid" alt="Responsive image">
+        <img src="assets/images/user-manual-docs/heat-map.png" class="img-fluid" alt="Responsive image">
+        
+        </section>
+    <hr class="divider">
+
+            <section id="admin-driver-user-management">
+        <h1>Admin,Driver & Users Management</h1>
+        <p class="lead">In admin management menu you can create new admin users along with service location. and the super admin can create new super admin users too. And the each admin users can create new admin users with different privileges for the admin roles of our system.</p>
+
+        <p>
+By Using Set privileges option the admin users can set privileges of their admin roles. Please refer the below images.</p>
+<p>set-privileges menu `Configurations->Roles & Permissions->Actions->Set privilege`
+</p>
+        <img src="assets/images/user-manual-docs/set-privileges.png" class="img-fluid" alt="Responsive image">
+        
+        <h3>User Management</h3>
+        <p class="lead">In this menu we can see the list of users who registered and using our our applications. we can edit the user's info and delete the user as well.</p>
+
+        <h3>Driver Management</h3>
+        <p class="lead">In this menu we can see the list of drivers who registered and using our our applications. we can edit the driver's info and delete the driver as well. There you can see the document view option in the list of drivers, this option is used to manage the driver's documents. Admin users can able to upload and remove the documents of the driver. And the admin can able to approve & decline the driver's document. we can give the comment while decline the driver's document. the decline comments will be listed in the mobile approval screen. Please refer the below images.</p>
+        
+        <img src="assets/images/user-manual-docs/drivers-list.png" class="img-fluid" alt="Responsive image">
+
+        <h3>Manage Documents</h3>
+        <img src="assets/images/user-manual-docs/document-view.png" class="img-fluid" alt="Responsive image">
+
+
+        </section>
+    <hr class="divider">
+
+       <section id="trip-request-management">
+        <h1>Trip Requests Management</h1>
+        <p class="lead">Here you can see the list of scheduled & ride now requests along with multiple actions and filters. By using View action you can see the detailed view of each request along with bill details if the request is completed. Refer the images below.</p>
+
+        <h3>Requests List</h3>
+        <img src="assets/images/user-manual-docs/request-lists.png" class="img-fluid" alt="Responsive image">
+        <img src="assets/images/user-manual-docs/request-view.png" class="img-fluid" alt="Responsive image">
+        
+        </section>
+ 
+    <hr class="divider">
+
+
+     <section id="custom-notifications">
+        <h1>Custom Notifications</h1>
+        <p class="lead">By using the custom notification option admin users can able to send the custom push notifications to the users & drivers as well. you can choose a single or multiple users at the same time. please refer an image below to send a notifications to the users & drivers.</p>
+
+        <img src="assets/images/user-manual-docs/notification.png" class="img-fluid" alt="Responsive image">       
+        </section>
+    <hr class="divider">
+
+       <section id="cancellation-and-complaints">
+
+        <h1>Cancellation & complaints</h1>
+
+        <p class="lead">By using cancellation menu admin user can configure the cancellation reasons for both users & drivers with arrival state. And also we can configure whether the reason could be compensate or free. if it is componsate the cancellation fee would be charged for the users & drivers as well.</p>
+
+        <img src="assets/images/user-manual-docs/cancellations.png" class="img-fluid" alt="Responsive image">
+
+        <h3>Complaints Management</h3>
+        <p class="lead">Here you can see the complaints list that is raised by the users & drivers from the mobile application. And we can configure the complaints titles at which category they want to rise thier complaints. Please refer an image below.</p>
+
+        </section>
+    <hr class="divider">
+
+    <section id="reports">
+
+        <h1>Reports</h1>
+
+        <p class="lead">By using the reports menu admin users can download the travel,drivers & users report along with multiple filters.There you can see the different filters for each reports. Please refer an image below.</p>
+
+        <img src="assets/images/user-manual-docs/reports.png" class="img-fluid" alt="Responsive image">
+
+        </section>
+    <hr class="divider">
+
+
+    <section id="system-settings">
+
+        <h1>System Settings</h1>
+
+        <p class="lead">By using configurations menu we can configure the total system configurations. There you can see the list of tabs the settings would be categorised like trip settings, installation settings, notification settings & General & Referal settings. Please refer an image below.</p>
+
+        <img src="assets/images/user-manual-docs/system-settings.png" class="img-fluid" alt="Responsive image">
+
+        </section>
+    <hr class="divider">
+
+ <section id="flutter-android-setup">
+
+        <h1>Introductions</h1>
+
+        <p class="lead">In this article, we are going to set up the Tagxi Super Bidding App’s initial setup for real-time use cases.</p>
+
+        </section>
+    <hr class="divider">
+
+    <section id="flutter-setup-instructions">
+
+        <h1>Setup Instructions</h1>
+
+        <ol>
+          <li><strong>Flutter SDK version for this project is 'Channel stable, 3.35.2'</strong></li>
+          <li><strong>Dart SDK version for this project is '3.7.2'</strong></li>
+          <li><strong>Android SDK version for this project is '35'</strong></li>
+          <li><strong>Gradle version for this project is 'gradle-8.3-all.zip'</strong></li>
+          <li><strong>Java version for this project is 'jdk-17'</strong></li>
+          <li><strong>Open your project File the Visual Studio Code which is used to create the project and also it is very powerful.</strong></li>
+          <li><strong>and in terminal run  command <code>flutter pub get</code></strong></li>
+          <li><strong>project structure is given in image below</strong></li>
+        
+        <img src="assets/images/flutter-doc/project-folder-structure.png" class="img-fluid" alt="Responsive image">
+
+        </ol>
+
+        </section>
+    <hr class="divider">
+
+    <section id="flutter-change-base-url">
+
+        <h1>Change Base URL</h1>
+
+        <ol>
+          <li>Change the BASE_URL Variable Presented in the Constants File. </li>
+          <li>It just updates your server’s primary URL to access all types of API Services From the App to your Server. Like below</li>
+          <strong> Note : File Location : project/lib/functions/functions.dart </strong>
+          
+          <br><code>String url = 'your base url here';</code>
+
+       
+        
+        </ol>
+
+        </section>
+
+          <section id="flutter-change-app-color">
+
+        <h1>Change App Color</h1>
+
+        <ol>
+          <li>just update the below parameter to change the app color</li>
+          <strong> Note : File Location : project/lib/styles/styles.dart </strong>
+          
+          <br><code>Color buttonColor = const Color(0xffFCB13D);</code>
+          <br><code>Color loaderColor = const Color(0xffFCB13D);</code>
+          <br><code>Color theme = const Color(0xffFCB13D);</code>
+          <br><code>Color buttonTextColorDarkMood = const Color(0xffFFCC00);</code>
+          <br><code>Color buttonTextColorLightMood = const Color(0xffFFCC00);</code>
+          <br><code>Color buttonColorDarkMood = const Color(0xff000000);</code>
+          <br><code>Color buttonColorLightMood = const Color(0xff000000);</code>
+
+       
+        
+        </ol>
+
+        </section>
+    <hr class="divider">
+
+        <section id="change-website-url">
+
+        <h1>Change Website URL</h1>
+
+        <ol>
+          <li>change website url in given files </li>
+
+          <strong> Note : File Location project/lib/pages/login/agreement.dart</strong>
+          <br>
+          <br>
+
+<code>onTap: () {</code><br>
+
+<code>openBrowser(</code><br>
+
+<code>'your terms and condition url here');</code><br>
+
+<code>},</code><br>
+
+<code>child: Text(</code><br>
+
+<code>languages[choosenLanguage]['text_terms'],</code><br>
+
+<code>style: GoogleFonts.roboto(</code><br>
+
+<code>fontSize: media.width * sixteen,</code><br>
+
+<code>color: buttonColor),</code><br>
+
+<code>),</code><br>
+<br>          
+
+
+       <strong> Note : File Location "project/lib/pages/login/agreement.dart" </strong>
+<br>
+<br>
+<code>onTap: () {</code><br>
+
+<code>openBrowser(</code><br>
+
+<code>'your privacy policy url here');</code><br>
+
+<code>},</code><br>
+
+<code>child: Text(</code><br>
+
+<code>languages[choosenLanguage]['text_privacy'],</code><br>
+
+<code>style: GoogleFonts.roboto(</code><br>
+
+<code>fontSize: media.width * sixteen,</code><br>
+
+<code>color: buttonColor),</code><br>
+
+<code>),</code><br>
+        
+<strong> Note : File Location "project/lib/pages/navigatorPages/support.dart" </strong>
+<br>
+<code>onTap: () {</code><br>
+
+<code>openBrowser(</code><br>
+
+<code>'your privacy policy url here');</code><br>
+
+<code>},</code><br>
+
+<code>child: Text(</code><br>
+
+<code>languages[choosenLanguage]['text_privacy'],</code><br>
+
+<code>style: GoogleFonts.roboto(</code><br>
+
+<code>fontSize: media.width * sixteen,</code><br>
+
+<code>fontWeight: FontWeight.w600,</code><br>
+
+<code>color: textColor),),</code><br>
+
+        </ol>
+
+
+        </section>
+    <hr class="divider">
+
+    <section id="flutter-google-map-cloud-setup">
+
+        <h1>Google Map & Cloud Configure</h1>
+
+        <ol>
+          <li>Create & configure account for map using Google map & Cloud by following below documents.</li>
+          <li>Google Cloud console link: <a href="https://developers.google.com/maps/documentation/android-sdk/cloud-setup">https://developers.google.com/maps/documentation/android-sdk/cloud-setup</a></li>
+          <li>firebase setup doc: <a href="https://firebase.google.com/docs/android/setup"> https://firebase.google.com/docs/android/setup </a></li>
+       
+        </ol>
+        <ol>
+          <li>After created & enabled the billing from google cloud & map console</li>
+
+          <p class="lead">add map api key change the map keys in given locations</p>
+
+          <strong> Note : File Location "project/android/app/src/main/AndroidManifest.xml" </strong>
+
+          <br>
+          <code>
+          &lt; meta-data android:name="com.google.android.geo.API_KEY"android:value="your maps api key here" /&gt; 
+        </code>
+
+        <strong> Note : File Location "project/lib/functions/functions.dart" </strong>
+
+          <br><code>String mapkey = (platform == TargetPlatform.android)?'android map key':'ios map key';</code>
+          <li>We need to create nodes in firebase realtime database, please find the sample json database below or refer firebase setup.</li>
+
+          <strong>Sample Json: <a href="https://tagxi-server.ondemandappz.com/firebase-database.json">https://tagxi-server.ondemandappz.com/firebase-database.json</a></strong>
+
+          <strong> call_FB_OTP </strong> node is used to configure whether the firebase otp should used or dummy otp should use for our testing purpose <br>
+          <br>
+
+          <li> Please make sure you have created the nodes mentioned below</li>
+          <strong>call_FB_OTP</strong><br>
+          
+          <li>Update the rules part with below content</li>
+
+          <code>
+            {
+              "rules": {
+                "drivers": {
+                  ".read": true,
+                  ".write":true,
+                    ".indexOn":["is_active","g","service_location_id","vehicle_type","l","ownerid"],
+                  },
+                "requests": {
+                  ".read": true,
+                  ".write": true,
+                    ".indexOn":["service_location_id"],
+                },
+                   "SOS": {
+                  ".read": true,
+                  ".write": true
+                },
+                   "call_FB_OTP": {
+                  ".read": true,
+                  ".write": true
+                },
+                  "driver_android_version": {
+                  ".read": true,
+                  ".write": true
+                },
+                  "driver_ios_version": {
+                  ".read": true,
+                  ".write": true
+                },
+                  "user_android_version": {
+                  ".read": true,
+                  ".write": true
+                },
+                  "user_ios_version": {
+                  ".read": true,
+                  ".write": true
+                },
+                  "user_package_name": {
+                  ".read": true,
+                  ".write": true
+                },
+                  "user_bundle_id": {
+                  ".read": true,
+                  ".write": true
+                },
+                  "driver_package_name": {
+                  ".read": true,
+                  ".write": true
+                },
+                  "driver_bundle_id": {
+                  ".read": true,
+                  ".write": true
+                },
+                  "request-meta": {
+                  ".read": true,
+                  ".write": true,
+                    ".indexOn":["driver_id","user_id"]
+                },
+                  "bid-meta": {
+                  ".read": true,
+                  ".write": true,
+                    ".indexOn":["driver_id","user_id","g"]
+                },
+                  "owners": {
+                  ".read": true,
+                  ".write": true,
+                    ".indexOn":["driver_id","user_id"]
+                },
+                  "chats": {
+                  ".read": true,
+                  ".write": true
+                },
+               }
+             }
+          </code>
+
+        </ol>
+
+        </section>
+    <hr class="divider">
+
+    <section id="change-package-name">
+
+        <h1>Change Package Name</h1>
+
+        <ol>
+          <li>Download & Paste the google-services.json into the 'project/android/app' folder properly to make proper communication from your App which is a client to FireBase.</li>
+
+        <img src="assets/images/flutter-doc/firebase-setup.png" class="img-fluid" alt="Responsive image">
+        <li>copy the package name from firebase and paste it in the following files</li>
+          <!-- <strong> Note : File Location "project/andrroid/app/src/main/AndroidManifest.xml" </strong>
+          <br>
+          <code>
+            &lt; manifest xmlns:android="http://schemas.android.com/apk/res/android"
+            package="package name here" &gt;
+          </code>
+          <br>
+          <br>
+          <strong> Note : File Location "project/android/app/src/profile/AndroidManifest.xml" </strong>
+          <br>
+          <br>
+          &lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+
+          package="package name here" &gt;
+          <strong> Note : File Location "project/android/app/src/debug/AndroidManifest.xml" </strong>
+
+          <br>
+          <br>
+          &lt;manifest xmlns:android="http://schemas.android.com/apk/res/android"
+
+          package="package name here" &gt;
+          <br> -->
+          <br>
+          <strong> Note : File Location "project/android/app/build.gradle" </strong>
+          <br>
+          <br>
+          <code>applicationId "package name here"</code>
+          <br>
+          <code>namespace "package name here"</code>
+          <br>
+
+          <strong> Note : File Location "project/android/app/src/main/kotlin/../../../MainActivity.kt" </strong>
+          <br>
+          <br>
+
+            <p>add package name here</p>
+              <code>package com.project.name</code>
+              code>val launchIntent = getPackageManager().getLaunchIntentForPackage("package name");</code>
+              <br>
+
+              <strong> Note : File Location "project/android/app/src/main/res/../../../AndroidManifest.xml" </strong>
+              <br>
+              <br>
+
+              <code>manifest xmlns:android="http://schemas.android.com/apk/res/android" package="package name"</code>
+              <br>
+              <code>data android:scheme="tagxi" android:host="package name"</code>
+              <br>
+              <code>package android:name="package name</code>
+
+
+            <li>change folder name</li>
+            <p>if your package name is com.package.android then,</p>
+            <strong> project/android/app/src/main/kotlin/com/something/something/ to project/android/app/src/main/kotlin/com/package/android</strong>
+            <br>
+            <br>
+
+            <strong> Note : File Location "project/lib/main.dart" </strong>
+            <br>
+            <code>package: "package name"</code><br>
+            <code>componentName: "package name"</code>
+        </ol>
+        </section>
+    <hr class="divider">
+
+
+    <section id="change-icons">
+
+        <h1>Change Icons</h1>
+
+        <ol>
+          <li>replace icons images in following folders in given name </li>
+        <ul>
+          <li>project/assets/images/ - logo.png</li>
+  
+  <li>project/android/app/src/main/res/drawable - dash_bubble.png (circle image 100x100)</li>
+
+  <li>project/android/app/src/main/res/mipmap-hdpi - ic_launcher.png (72x72)</li>
+
+  <li>project/android/app/src/main/res/mipmap-mdpi - ic_launcher.png (48x48)</li>
+
+  <li>project/android/app/src/main/res/mipmap-xhdpi - ic_launcher.png (96x96)</li>
+
+  <li>project/android/app/src/main/res/mipmap-xxhdpi - ic_launcher.png (144x144)</li>
+
+  <li>project/android/app/src/main/res/mipmap-xxxhdpi - ic_launcher.png (192x192)</li>
+
+  <li>project/android/app/src/main/res/drawable/ - logo.png</li>
+      
+          </ul>
+  
+        </ol>
+          
+        </section>
+    <hr class="divider">
+
+<section id="change-display-name">
+
+        <h1>Change Display Name</h1>
+
+        <ol>
+          <li>change app display name in file, </li>
+          
+          <strong> Note : File Location "project/android/app/src/main/AndroidManifest.xml" </strong>
+          <br>
+         
+          <code> android:label="product name" </code> <br>
+
+          <strong>Note : File Location "project/lib/main.dart" </strong><br>
+          <br>
+          <code> title: 'product name', </code><br>
+          <strong>Note : File Location "project/lib/functions/functions.dart - (only in driver)" </strong><br>
+          <br>
+          <code> "product name will continue", </code><br>
+          <br>
+          <strong>Note : File Location "project/lib/pages/login/agreement.dart" </strong><br>
+          <br>
+          <code> "replaceAll('5555', 'Product Name')", </code><br>
+  
+        </ol>
+       
+        </section>
+    <hr class="divider">
+
+
+    <hr class="divider">
+
+
+    <section id="change-app-version">
+
+        <h1>Change app version</h1>
+
+        <strong> Note : File Location "project/pubsec.yaml" </strong>
+
+        <br>
+        <br>
+        <code>version: 1.0.2+3</code>
+
+        </section>
+    <hr class="divider">
+
+
+    <section id="create-release-keys">
+
+        <h1>Create release keys</h1>
+
+        <p class="lead">create release keys by running command in terminal
+</p>
+        <strong>   note: change anyname with any specific name you like, </strong>
+
+          <strong>keytool -genkey -v -keystore ~/[name].jks -keyalg RSA -keysize 2048 -validity 10000 -alias [your_alias_name]-storetype JKS</strong>
+
+          <li>after running this command give the data asked in the terminal. after that it will save the jks file and display the location</li>
+        <br>
+        <br>
+
+        </section>
+    <hr class="divider">
+
+    <section id="replace-the-jks-keys">
+
+            <h1>Replace the jks key</h1>
+
+        <p class="lead">replace the jks key details in file,
+
+</p>
+         <strong> Note : File Location "project/android/key.properties as given below" </strong>
+<br>
+<br>
+<code>storePassword=password you entered while creating jks file</code><br>
+
+<code>keyPassword=password you entered while creating jks file</code><br>
+
+<code>keyAlias=alias name you given in the command for creating jks file</code><br>
+
+<code>storeFile=jks file name with the location like ../../../jks</code><br>
+
+        <br>
+        <br>
+  
+        </section>
+    <hr class="divider">
+
+<section id="generate-sha-1">
+
+<h1>Generate SHA-1</h1>
+
+<p class="lead">Generate SHA-1 and SHA-256 keys from the project
+
+  <ol>
+    <li>you will be able to get these keys in two ways these are</li>
+    <li>in terminal go to folder 'project/android/' and run the command './gradlew signinReport' then you will get debug and release SHA-1 and SHA-256</li>
+    <li> Run the below command in the terminal to get SHA keys</li>
+    <li>Key tool -genkey -v -keystore release.keystore -alias [your_alias_name] -keyalg RSA -keysize 2048 -validity 10000</li>
+    <br>
+    <p>Finally copy that debug and release keys and paste those in Firebase where</p>
+
+    <p>Click Settings icon (presented right on project overview ) -> project settings -> Your App section -> SHA certificate fingerprints click add button and paste & Submit.</p>
+
+
+
+  </ol>
+</section>
+<hr class="divider">
+
+<section id="google-map-services-setup">
+
+<h1>Google Map Services Setup</h1>
+
+<p class="lead">Enable below services in cloud console
+
+  <ol>
+    <li>Places API - which helps to get address while typing keys from the app</li>
+    <li>Maps SDK For Android</li>
+    <li>Google Sheets API - For translation sheets</li>
+    <li>Android Device Verification - For Identify the App name to append in OTP from Firebase
+</li>
+  <li>Geolocation APIs like routes api, places api (new), directions, distance matrix, geocoding, geolocations, Maps JavaScript, Maps static.</li>
+
+  </ol>
+</section>
+<hr class="divider">
+
+<section id="generate-apk">
+
+<h1>Generate APK</h1>
+  <ol>
+    <li>to download apk file run "flutter build apk --release" in terminal from project location, and you will get apk file in folder - project/build/app/outputs/apk/release/app-release.apk
+</li>
+    
+  </ol>
+</section>
+<hr class="divider">
+
+<section id="generate-bundle-file">
+
+<h1>Generate bundle file
+</h1>
+
+<p class="lead">to download app bundle file run "flutter build appbundle --release" in terminal from project location, and you will get app bundle file in folder - project/build/app/outputs/bundle/release/app-release.aab</p>
+
+<br>
+<p>
+Click Settings icon (presented right on project overview ) -> project settings -> Your App section -> SHA certificate fingerprints click add button and paste & Submit.
+</p>
+</section>
+<hr class="divider">
+
+<section id="final-setups">
+
+<h1>Final Steps
+</h1>
+
+<p class="lead">after uploading app in playstore, then you will get a sha1 key and sha256 key from playstore, add those keys in your project as </p>
+
+<p>Click Settings icon (presented right on project overview ) -> project settings -> Your App section -> SHA certificate fingerprints click add button and paste & Submit.</p>
+
+<p class="lead">To remove recaptcha on playstore version</p><br>
+
+<p>Open your app in play console and go to 'App Integrity' and Tap 'Settings' in 'Play Integrity Api' as shown in image below.</p><br>
+
+<img src="assets/images/flutter-doc/app-integrity-1.png" class="img-fluid" alt="Responsive image"><br>
+
+<p>In Play integrity Api settings choose add or edit project in Google Cloud Project</p><br>
+
+<img src="assets/images/flutter-doc/app-integrity-2.png" class="img-fluid" alt="Responsive image"><br>
+
+<p>Choose any project and link google cloud project with this app</p><br>
+
+<img src="assets/images/flutter-doc/app-integrity-3.png" class="img-fluid" alt="Responsive image"><br>
+</section>
+<hr class="divider">
+
+
+<section id="flutter-ios-setup">
+
+<h1>Introduction
+
+</h1>
+
+<p class="lead">In this article, we are going to set up the Tagxi super bidding App’s initial setup for real-time use cases. 
+ </p>
+</section>
+<hr class="divider">
+
+<section id="flutter-ios-setup-instructions">
+
+<strong> Note: Before ios setup, please complete all the server & firebase & code changes, map setup which is 
+mentioned in android setup & server setup sections. </strong>
+<br>
+<br>
+
+<li><strong> flutter version for this project is '3.35.2'</strong></li>
+<li><strong> Xcode version for this project is '16.1'</strong></li>
+ 
+ <p>change some details in given files,</p>
+
+ <strong> Note : File Location : "project/ios/Runner/Runner.xcodeproj/project.pbxproj" </strong>
+
+<br>
+<code>PRODUCT_BUNDLE_IDENTIFIER = 'bundle.id';  (change in 6 places in same file)
+</code>
+  
+  <br>
+  <strong> Note : File Location : "project/ios/Runner/info.plist" </strong>
+<br>
+
+&lt;key &gt;CFBundleDisplayName&lt;/key&gt;
+<br>
+
+&lt;string&gt;project name here&lt;/string&gt;
+<br>
+<br>
+
+&lt;string &gt;Encoded app id from firebasse&lt;/string&gt;
+<br>
+<br>
+
+<li>Replace "Encoded app id from firebasse" with the encoded app id of Firebase project</li>
+
+      <img src="assets/images/flutter-doc/encodedappid.png" class="img-fluid" alt="Responsive image">
+      <br>
+
+<li>Open your project File with the Xcode IDE which is used to create the project and also it is very powerful.
+</li>
+
+<p>project file is in location, </p>
+<strong> Note : File Location : "project/ios/runner.xcworkspace" </strong>
+
+<br>
+<p>change map api key in file, <strong> Note : File Location :  project/ios/Runner/appDelegate.swift </strong>
+</p>
+<br><code>GMSServices.provideAPIKey("your map key here")
+</code>
+
+</section>
+<hr class="divider">
+
+  
+  <section id="flutter-major-things-to-do">
+    <ol>
+      <li>Rename the project with your app name and bundle identifier</li>
+
+      <p class="lead">in Xcode / Runner / General /</p>
+      <img src="assets/images/flutter-doc/rename-project.png" class="img-fluid" alt="Responsive image">
+      <br>
+      <li>Create a bundle identifier for your app in developer account.</li>
+      <li>create development and distribution certificates.</li>
+        <p>kindly refer this url for reference - <a href="https://medium.com/mobile-devops-ci-cd-ct/steps-to-create-ios-developer-and-distribution-certificates-with-and-without-a-mac-8449b973ef9d">https://medium.com/mobile-devops-ci-cd-ct/steps-to-create-ios-developer-and-distribution-certificates-with-and-without-a-mac-8449b973ef9d</a>
+        </p>
+      <li>Create provisioning profiles for both development and distribution.</li>
+      <p> kindly refer this url for reference - <a href="https://clearbridgemobile.com/how-to-create-a-distribution-provisioning-profile-for-ios/">https://clearbridgemobile.com/how-to-create-a-distribution-provisioning-profile-for-ios/</a></p>
+
+      <li>Create APNS auth key for push notification.</li>
+      <li>Register your bundle identifier in firebase project that you changed in xcode.</li>
+      <li>Firebase -: setup phone number authentication, cloud messaging and firebase database.</li>
+      <li>Download the googleservicePlist json from firebase.</li>
+      <li>Now open the project.</li>
+
+      <li>add googleservice-Info.plist in project/ios/Runner/ or from xcode right click Runner and click Add files to runner and choose googleserviceInfo.plist file as shown in image.</li>
+      <img src="assets/images/flutter-doc/replace-google-services.png" class="img-fluid" alt="Responsive image">
+
+      <li>copy the Encoded app id from googleserviceplist.json and paste it in url scheme in Xcode / Runner / Info / url types as shown in image</li>
+      <br>
+      <img src="assets/images/flutter-doc/copy-google-info-id.png" class="img-fluid" alt="Responsive image">
+      <img src="assets/images/flutter-doc/configure-google-info.png" class="img-fluid" alt="Responsive image">
+
+      <li>replace App Icon in assets in the folder in followin size and names without alpha and transparent background</li>
+      <strong>  project/ios/Runner/Assets.xcassets/AppIcon.appiconset/ </strong>
+
+      <br>
+      <br>
+    
+       Icon-App-20x20_1x.png - (20x20) x1 size - 20x20<br>
+
+     Icon-App-20x20_2x.png - (20x20) x2 size - 40x40<br>
+
+     Icon-App-20x20_3x.png - (20x20) x3 size - 60x60<br>
+
+     Icon-App-29x29_1x.png - (29x29) x1 size - 29x29<br>
+
+     Icon-App-29x29_2x.png - (29x29) x2 size - 58x58<br>
+
+     Icon-App-29x29_3x.png - (29x29) x3 size - 87x87<br>
+
+     Icon-App-40x40_1x.png - (40x40) x1 size - 40x40<br>
+
+     Icon-App-40x40_2x.png - (40x40) x2 size - 80x80<br>
+
+     Icon-App-40x40_3x.png - (40x40) x3 size - 120x120<br>
+
+     Icon-App-60x60_2x.png - (60x60) x2 size - 120x120<br>
+
+     Icon-App-60x60_3x.png - (60x60) x3 size - 180x180<br>
+
+     Icon-App-76x76_1x.png - (76x76) x1 size - 76x76<br>
+
+     Icon-App-76x76_2x.png - (76x76) x2 size - 152x152<br>
+
+     Icon-App-83.5x83.5_2x.png - (83.5x83.5) x2 size - 167x167<br>
+
+     Icon-App-1024x1024_1x.png - (1024x1024) x1 size - 1024x1024<br>
+
+     <li><strong>Open File Path in Terminal:</strong> <code> cd ios/Runner/Assets.xcassets</code></li>
+     <li><strong>Run a Command in Terminal:</strong> <code>for folder in AppIcon.appiconset LaunchImage.imageset; do
+  cd "$folder"
+  for file in *_*.png; do
+    [ -f "$file" ] && mv "$file" "${file//_/@}"
+  done
+  sed -i '' 's/_/@/g' Contents.json
+  cd ..
+done</code></li> <br>
+
+     Icon-App-20x20@1x.png - (20x20) x1 size - 20x20<br>
+
+     Icon-App-20x20@2x.png - (20x20) x2 size - 40x40<br>
+
+     Icon-App-20x20@3x.png - (20x20) x3 size - 60x60<br>
+
+     Icon-App-29x29@1x.png - (29x29) x1 size - 29x29<br>
+
+     Icon-App-29x29@2x.png - (29x29) x2 size - 58x58<br>
+
+     Icon-App-29x29@3x.png - (29x29) x3 size - 87x87<br>
+
+     Icon-App-40x40@1x.png - (40x40) x1 size - 40x40<br>
+
+     Icon-App-40x40@2x.png - (40x40) x2 size - 80x80<br>
+
+     Icon-App-40x40@3x.png - (40x40) x3 size - 120x120<br>
+
+     Icon-App-60x60@2x.png - (60x60) x2 size - 120x120<br>
+
+     Icon-App-60x60@3x.png - (60x60) x3 size - 180x180<br>
+
+     Icon-App-76x76@1x.png - (76x76) x1 size - 76x76<br>
+
+     Icon-App-76x76@2x.png - (76x76) x2 size - 152x152<br>
+
+     Icon-App-83.5x83.5@2x.png - (83.5x83.5) x2 size - 167x167<br>
+
+     Icon-App-1024x1024@1x.png - (1024x1024) x1 size - 1024x1024<br>
+
+     <li>in go to folder 'project/ios' and run command 'flutter build ios'
+</li>
+  <li>to create archive file to upload run command 'flutter build ipa' from folder 'project/ios'.</li>
+  <br>
+    <p>you will find archive file in folder project/build/ios/archive/Runner.xcarchive
+</p>
+    </ol>
+
+</section>
+<hr class="divider">
+
+<section id="flutter-push-setup">
+
+  <h1>Push Notifications</h1>
+  <p class="lead">For ios create keys from your developer account, with enabling Apple Push Notification service (APNs) and download it.
+</p>
+<p>refer this url for reference -<a href=" https://medium.com/@bulkpushs/easy-step-for-creating-apple-push-notification-authentication-key-ffe57344a143"> https://medium.com/@bulkpushs/easy-step-for-creating-apple-push-notification-authentication-key-ffe57344a143</a> <strong>(kindly dont forgot to enable push notification while creating key)</strong></p>
+
+  <strong> Then in Firebase -> Project overview -> project settings -> cloud messaging -> </strong>
+  <li> Choose your app from Apple app configuration, </li>
+  <li> Upload APNs key with Key id and Apple Team id, </li>
+  <br>
+
+  <p>Then the push notification will work.</p>
+
+</section>
+<hr class="divider">
+
+
+<section id="flutter-translation-setup">
+
+  <h1>Translations</h1>
+  <p class="lead">We are using google translation api to translation the key words from english to particular language. in this article we are going to see how we are using google api to translate the keywords.
+</p>
+</section>
+<hr class="divider">
+<section id="flutter-translation-setup-instructions">
+
+  <ol>
+    <li>Find the translation.xlsx file from main-file folder & import into google sheet, 
+</li>
+
+<p>If you want to add new language you can add new column as you prefered language short code</p>
+     
+     <p> Example of creating french language</p>
+       
+       <p> Create a new column named "fr" . & under fr use the below formula to translate all the keywords. </p>
+        
+        <p> Translation Formula  </p>
+                <p>=GOOGLETRANSLATE(B2,"en","fr")</p>
+ 
+  
+  <strong> In this formula B2 is the row number of english word. </strong>
+ 
+ 
+Refer The below url to create short code for languages
+ 
+<a href="https://developers.google.com/admin-sdk/directory/v1/languages"> https://developers.google.com/admin-sdk/directory/v1/languages </a>
+
+  <li>After Added & Updated all the data. you need to setup your server. & you can call our translation api which is created in our server app. so before trying to build an app from ios/android, please complete the server app setup first.</li>
+  <li> After setup the server app,
+You can call the translation api which is "you-server-base-url/api/v1/translation/get"
+You will get the json response from this api. which is updated json for the translation.
+copy the json and paste in project/lib/translations/translation.dart
+</li>
+
+  <code> Map &lt;String, dynamic&gt; languages = { </code>
+
+    <code> "en": { </code>
+
+  </ol>
+</section>
+<hr class="divider">
+
+
+
+        <!-- Changelog
+    ============================ -->
+      
+         <section id="idocs_changelog">
+          <h2>Changelog</h2>
+      
+          <h3 id="v1-0">Version 1.0 <small class="text-muted">(08 June, 2023)</small></h3>
+          <p>- Initial Release</p>
+          <h3 id="v1-0">Version 1.1 <small class="text-muted">(25 July, 2023)</small></h3>
+          <p>- Flutter version upgraded to 3.19.3</p>
+          <p>- Multiple Vehicle types feature added for drivers app</p>
+          <p>- Bidding & Normal ride can be enabled for each vehicle type feature updated</p>
+          <p> - Ride later & Without destination feature can be available for normal ride vehicles</p>
+          <h3 id="v1-0">Version 1.2 <small class="text-muted">(05 September, 2023)</small></h3>
+          <p>- Share ride details with live tracking link feature updated</p>
+          <p>- Change Payment method at end of the ride when it's cash/card by the customer feature updated</p>
+          <p>- Payment received status update when it's cash by driver added</p>
+          <p>- Categorised Fare list by service location updated in admin panel</p>
+          <p>- Minor Bug fixes</p>
+          <h3 id="v1-0">Version 2.0 <small class="text-muted">(24 September, 2023)</small></h3>
+          <p>- New UI Update for Complete Mobile applications</p>
+          <p>- Mercadopago payment gateway added</p>
+          <h3 id="v1-0">Version 2.1 <small class="text-muted">(11 October, 2023)</small></h3>
+          <p>- Mercadopago Payment Gateway bug fixes for server side</p>
+          <p>- Trip invoice flicker issue fixes</p>
+          <p>- Minor bug fixes for both server & mobile apps</p>
+          <h3 id="v1-0">Version 2.2 <small class="text-muted">(04 November, 2023)</small></h3>
+          <p>- Admin commission for drivers added</p>
+          <p>- Bug fixes done for both Mobile & Server app side</p>
+          <h3 id="v1-0">Version 2.2 <small class="text-muted">(12 December, 2023)</small></h3>
+          <p>- Live Chat Between Admin & Users/Drivers feature added</p>
+          <p>- Custom Make & Model Feature added for driver signup</p>
+          <p>- Minor Bug Fixes done for both server & mobile apps</p>
+          <h3 id="v1-0">Version 2.3 <small class="text-muted">(01 January, 2024)</small></h3>
+          <p>- Waze map button added for navigation</p>
+          <p>- Banner feature added for users application</p>
+          <p>- Custom make & model input added for driver signup</p>
+          <p>- Minor bug fixes done for both server & mobile apps</p>
+          <h3 id="v1-0">Version 2.4 <small class="text-muted">(09 February, 2024)</small></h3>
+          <p>- Multiple Ride feature in the users app added</p>
+          <p>- Outstation Ride Feature added</p>
+          <p>- Minor Bug Fixes</p>
+          <h3 id="v1-0">Version 2.5 <small class="text-muted">(10 February, 2024)</small></h3>
+          <p>- Home Screen Design Changes done</p>
+          <p>- Stopover bug fixes</p>
+          <p>- Fractional price increase/decrease bug fixes</p>
+          <h3 id="v1-0">Version 2.6 <small class="text-muted">(11 March, 2024)</small></h3>
+          <p>- Floating Bubble icon feature added for drivers app</p>
+          <p>- Bug fixes done in both server app & mobile apps</p>
+          <h3 id="v1-0">Version 2.7 <small class="text-muted">(03 April, 2024)</small></h3>
+          <p>- Flutter Upgraded to 3.19.3</p>
+          <p>- UI improvements</p>
+          <p>- Openstreet Map implementation</p>
+          <p>- Paypal Integration</p>
+          <p>- Bubble permission issues fixes</p>
+          <h3 id="v1-0">Version 2.8 <small class="text-muted">(10 April, 2024)</small></h3>
+          <p>- Added Outstation Ride Feature again</p>
+          <p>- Fixed Ontrip missed info</p>
+          <p>- Minor Bug fixes done</p>
+          <h3 id="v1-0">Version 2.9 <small class="text-muted">(20 May, 2024)</small></h3>
+          <p>- New Dispatcher Panel added</p>
+          <p>- Day wise Surge price feature added</p>
+          <p>- Signup with password feature added</p>
+          <p>- UI improvements done for both mobile apps</p>
+          <p>- Minor Bug fixes done</p>
+          <h3 id="v1-0">Version 3.0 <small class="text-muted">(06 June, 2024)</small></h3>
+          <p>- Gender parameter added in user & driver signup</p>
+          <p>- Made some UI improvements</p>
+          <p>- Ride Preference Feature added</p>
+          <p>- Minor bug fixes done for both server & mobile apps</p>
+          <h3 id="v1-0">Version 3.1 <small class="text-muted">(24 June, 2024)</small></h3>
+          <p>- Booking UI improved in users app</p>
+          <p>- Backend & Mobile App bug fixes done</p>
+          <h3 id="v1-0">Version 3.2 <small class="text-muted">(09 July, 2024)</small></h3>
+          <p>- Ios location issue Fixed</p>
+          <p>- improved Live Tracking with polyline</p>
+          <p>- Minor Bug fixes done</p>
+          <h3 id="v1-0">Version 3.3 <small class="text-muted">(01 August, 2024)</small></h3>
+          <p>- Geocoding & Map api call improvements done</p>
+          <p>- Delivery Instant Ride feature added</p>
+          <p>- Multiple Stop Complete Feature added</p>
+          <p>- Minor Bug Fixes</p>
+          <h3 id="v1-0">Version 3.4 <small class="text-muted">(24 August, 2024)</small></h3>
+          <p>- Flutter Version upgraded to 3.22.3</p>
+          <p>- Android 14 support added</p>
+          <p>- Map optimization done for mobile apps</p>
+          <p>- Location update issues addressed in drivers app</p>
+          <p>- Sms gateway fixes </p>
+          <p>- End all stops feature added</p>
+          <p>- Push notifications for bidding ride</p>
+          <p>- Gender Edit option added</p>
+          <h3 id="v1-0">Version 3.5 <small class="text-muted">(30 September, 2024)</small></h3>
+          <p>- Geocoding Api calls optiomization done for users app</p>
+          <p>- Made optional option for drag icon on a map can be configured from admin panel</p>
+          <p>- Added Multiple Roles & it's permissions feature</p>
+          <h3 id="v1-0">Version 3.6 <small class="text-muted">(15 November, 2024)</small></h3>
+          <p>- Flutter version upgraded to 3.24.4</p>
+          <p>- Xcode 16.1 support</p>
+          <p>- Minor bug fixes done on both mobile apps & server apps</p>
+
+          <h3 id="v1-0">Version 3.6 <small class="text-muted">(28 February, 2025)</small></h3>
+          <p>- Flutter version upgraded to 3.27.3</p>
+          <p>- Android SDK Version upgraded to 35.0.0</p>
+          <p>- Additional Charge Feature updated in drivers app & in admin panel</p>
+          <p>- Minor bug fixes in mobile apps & Admin panel</p>
+
+          <h3 id="v1-0">Version 3.7 <small class="text-muted">(29 March, 2025)</small></h3>
+          <p>- Places library to places services api migration for both mobile apps & admin panel</p>
+          <p>- Tip Feature added</p>
+          <p>- Minor bug fixes in mobile apps & Admin panel</p>
+          <h3 id="v1-0">Version 3.8 <small class="text-muted">(26 May, 2025)</small></h3>
+          <p>-Flutter version upgraded to 3.29.3 </p>
+          <p>- Minor bug fixes in mobile apps & Admin panel</p>
+
+          <h3 id="v1-0">Version 3.9 <small class="text-muted">(24 October, 2025)</small></h3>
+          <p>-Flutter version upgraded to 3.35.2 </p>
+          <p>- Minor bug fixes in mobile apps & Admin panel</p>
+        </section>
+
+      </div>
+    </div>
+  
+  </div>
+  <!-- Content end --> 
+  
+  <!-- Footer
+  ============================ -->
+  <footer id="footer" class="section bg-dark footer-text-light">
+    <div class="container">
+      
+      <p class="text-center">Copyright &copy; 2024 <a href="https://tagyourtaxi.com/idocs-one-page-documentation-html-template/">Misoftwares</a>. All Rights Reserved.</p>
+    </div>
+  </footer>
+  <!-- Footer end -->
+  
+</div>
+<!-- Document Wrapper end --> 
+
+<!-- Back To Top --> 
+<a id="back-to-top" data-toggle="tooltip" title="Back to Top" href="javascript:void(0)"><i class="fa fa-chevron-up"></i></a> 
+
+<!-- JavaScript
+============================ -->
+<script src="assets/vendor/jquery/jquery.min.js"></script> 
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script> 
+<!-- Highlight JS -->
+<script src="assets/vendor/highlight.js/highlight.min.js"></script> 
+<!-- Easing --> 
+<script src="assets/vendor/jquery.easing/jquery.easing.min.js"></script> 
+<!-- Magnific Popup --> 
+<script src="assets/vendor/magnific-popup/jquery.magnific-popup.min.js"></script> 
+<!-- Custom Script -->
+<script src="assets/js/theme.js"></script>
+</body>
+</html>

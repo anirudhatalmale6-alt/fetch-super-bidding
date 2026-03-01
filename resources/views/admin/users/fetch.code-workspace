@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../.."
+		},
+		{
+			"path": "../../../../flutter_driver"
+		},
+		{
+			"path": "../../../../flutter_user"
+		}
+	],
+	"settings": {}
+}
