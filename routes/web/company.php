@@ -110,6 +110,16 @@ Route::middleware(['auth:web', 'role:trucking_company|fleet_owner|owner'])
         });
         
         // ==========================================
+        // DELIVERY LEGS MANAGEMENT (Interstate)
+        // ==========================================
+        Route::prefix('deliveries')->name('deliveries.')->group(function () {
+            Route::get('/', 'CompanyDeliveryController@index')->name('index');
+            Route::get('/{id}', 'CompanyDeliveryController@show')->name('show');
+            Route::post('/{id}/accept', 'CompanyDeliveryController@accept')->name('accept');
+            Route::post('/{id}/status', 'CompanyDeliveryController@updateStatus')->name('update-status');
+        });
+
+        // ==========================================
         // BANNERS/SLIDER (Company Dashboard)
         // ==========================================
         Route::prefix('banners')->name('banners.')->group(function () {

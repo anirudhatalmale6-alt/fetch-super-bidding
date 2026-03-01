@@ -16,18 +16,18 @@ class CompanyBidController extends BaseController
      */
     public function index()
     {
-        $user = auth('web')->user();
-        $company = TruckingCompany::where('user_id', $user->id)->first();
+        $owner = auth('web')->user()->owner;
+        $company = $owner->truckingCompany;
 
         if (!$company) {
-            $bids = collect();
-            $company = null;
-        } else {
-            $bids = InterstateBid::where('trucking_company_id', $company->id)
-                ->with(['request'])
-                ->orderBy('created_at', 'desc')
-                ->paginate(20);
+            return redirect()->route('company.dashboard')
+                ->with('error', 'Company not found.');
         }
+
+        $bids = InterstateBid::where('trucking_company_id', $company->id)
+            ->with(['request'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
 
         return view('company.bids.index', compact('bids', 'company'));
     }
@@ -45,19 +45,14 @@ class CompanyBidController extends BaseController
                 ->with('error', 'Your company type does not support bidding.');
         }
 
-        // Get company's supported routes
-        $supportedRoutes = $company->supportedRoutes()->pluck('route_code')->toArray();
-
-        // Get available requests that match company routes
+        // Get available interstate requests (not completed/cancelled, not already bid on)
         $requests = DeliveryRequest::where('delivery_type', 'interstate')
-            ->where('interstate_status', 'pending')
+            ->where('is_completed', false)
+            ->where('is_cancelled', false)
             ->whereDoesntHave('bids', function($query) use ($company) {
-                $query->where('company_id', $company->id);
+                $query->where('trucking_company_id', $company->id);
             })
-            ->when(!empty($supportedRoutes), function($query) use ($supportedRoutes) {
-                return $query->whereIn('route_code', $supportedRoutes);
-            })
-            ->with(['packages', 'pickupLocation', 'dropLocation'])
+            ->with(['packages', 'requestPlace', 'originHub', 'destinationHub'])
             ->latest()
             ->paginate(20);
 
@@ -79,13 +74,14 @@ class CompanyBidController extends BaseController
 
         $deliveryRequest = DeliveryRequest::where('id', $requestId)
             ->where('delivery_type', 'interstate')
-            ->where('interstate_status', 'pending')
-            ->with(['packages', 'pickupLocation', 'dropLocation'])
+            ->where('is_completed', false)
+            ->where('is_cancelled', false)
+            ->with(['packages', 'requestPlace', 'originHub', 'destinationHub'])
             ->firstOrFail();
 
         // Check if already bid
         $existingBid = InterstateBid::where('request_id', $requestId)
-            ->where('company_id', $company->id)
+            ->where('trucking_company_id', $company->id)
             ->first();
 
         if ($existingBid) {
@@ -110,10 +106,10 @@ class CompanyBidController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'request_id' => 'required|exists:requests,id',
-            'transport_fee' => 'required|numeric|min:0',
+            'transportation_fee' => 'required|numeric|min:0',
             'insurance_fee' => 'required|numeric|min:0',
-            'estimated_delivery_days' => 'required|integer|min:1|max:30',
-            'notes' => 'nullable|string|max:1000',
+            'estimated_delivery_hours' => 'required|integer|min:1|max:720',
+            'bid_notes' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
@@ -122,39 +118,30 @@ class CompanyBidController extends BaseController
 
         $deliveryRequest = DeliveryRequest::findOrFail($request->request_id);
 
-        // Check if request is still pending
-        if ($deliveryRequest->interstate_status !== 'pending') {
+        // Check if request is still open
+        if ($deliveryRequest->is_completed || $deliveryRequest->is_cancelled) {
             return back()->with('error', 'This request is no longer accepting bids.');
         }
 
         // Check if already bid
         $existingBid = InterstateBid::where('request_id', $request->request_id)
-            ->where('company_id', $company->id)
+            ->where('trucking_company_id', $company->id)
             ->first();
 
         if ($existingBid) {
             return back()->with('error', 'You have already placed a bid on this request.');
         }
 
-        // Calculate bid amount
-        $transportFee = $request->transport_fee;
-        $insuranceFee = $request->insurance_fee;
-        $bidAmount = $transportFee + $insuranceFee;
-
-        // Create bid
+        // Create bid (total_bid_amount auto-calculated in model boot)
         $bid = InterstateBid::create([
             'request_id' => $request->request_id,
-            'company_id' => $company->id,
-            'bid_amount' => $bidAmount,
-            'transport_fee' => $transportFee,
-            'insurance_fee' => $insuranceFee,
-            'estimated_delivery_days' => $request->estimated_delivery_days,
-            'notes' => $request->notes,
+            'trucking_company_id' => $company->id,
+            'transportation_fee' => $request->transportation_fee,
+            'insurance_fee' => $request->insurance_fee,
+            'estimated_delivery_hours' => $request->estimated_delivery_hours,
+            'bid_notes' => $request->bid_notes,
             'status' => 'pending',
         ]);
-
-        // Fire event
-        event(new \App\Events\Interstate\BidPlaced($bid));
 
         return redirect()->route('company.bids.history')
             ->with('success', 'Bid submitted successfully!');
@@ -173,7 +160,7 @@ class CompanyBidController extends BaseController
                 ->with('error', 'Company not found.');
         }
 
-        $bids = InterstateBid::where('company_id', $company->id)
+        $bids = InterstateBid::where('trucking_company_id', $company->id)
             ->with(['request', 'request.packages'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -190,11 +177,11 @@ class CompanyBidController extends BaseController
         $company = $owner->truckingCompany;
 
         $bid = InterstateBid::where('id', $id)
-            ->where('company_id', $company->id)
-            ->with(['request', 'request.packages', 'request.pickupLocation', 'request.dropLocation'])
+            ->where('trucking_company_id', $company->id)
+            ->with(['request', 'request.packages', 'request.requestPlace', 'request.originHub', 'request.destinationHub'])
             ->firstOrFail();
 
-        return view('company.bids.show', compact('bid'));
+        return view('company.bids.show', compact('bid', 'company'));
     }
 
     /**
@@ -206,12 +193,12 @@ class CompanyBidController extends BaseController
         $company = $owner->truckingCompany;
 
         $bid = InterstateBid::where('id', $id)
-            ->where('company_id', $company->id)
+            ->where('trucking_company_id', $company->id)
             ->where('status', 'pending')
             ->with(['request', 'request.packages'])
             ->firstOrFail();
 
-        return view('company.bids.edit', compact('bid'));
+        return view('company.bids.edit', compact('bid', 'company'));
     }
 
     /**
@@ -223,34 +210,28 @@ class CompanyBidController extends BaseController
         $company = $owner->truckingCompany;
 
         $bid = InterstateBid::where('id', $id)
-            ->where('company_id', $company->id)
+            ->where('trucking_company_id', $company->id)
             ->where('status', 'pending')
             ->firstOrFail();
 
         $validator = Validator::make($request->all(), [
-            'transport_fee' => 'required|numeric|min:0',
+            'transportation_fee' => 'required|numeric|min:0',
             'insurance_fee' => 'required|numeric|min:0',
-            'estimated_delivery_days' => 'required|integer|min:1|max:30',
-            'notes' => 'nullable|string|max:1000',
+            'estimated_delivery_hours' => 'required|integer|min:1|max:720',
+            'bid_notes' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        $transportFee = $request->transport_fee;
-        $insuranceFee = $request->insurance_fee;
-        $bidAmount = $transportFee + $insuranceFee;
-
         $bid->update([
-            'bid_amount' => $bidAmount,
-            'transport_fee' => $transportFee,
-            'insurance_fee' => $insuranceFee,
-            'estimated_delivery_days' => $request->estimated_delivery_days,
-            'notes' => $request->notes,
+            'transportation_fee' => $request->transportation_fee,
+            'insurance_fee' => $request->insurance_fee,
+            'estimated_delivery_hours' => $request->estimated_delivery_hours,
+            'bid_notes' => $request->bid_notes,
+            'is_revised' => true,
         ]);
-
-        event(new \App\Events\Interstate\BidPlaced($bid));
 
         return redirect()->route('company.bids.history')
             ->with('success', 'Bid updated successfully!');
@@ -265,11 +246,14 @@ class CompanyBidController extends BaseController
         $company = $owner->truckingCompany;
 
         $bid = InterstateBid::where('id', $id)
-            ->where('company_id', $company->id)
+            ->where('trucking_company_id', $company->id)
             ->where('status', 'pending')
             ->firstOrFail();
 
-        $bid->update(['status' => 'withdrawn']);
+        $bid->update([
+            'status' => 'withdrawn',
+            'withdrawn_at' => now(),
+        ]);
 
         return redirect()->route('company.bids.history')
             ->with('success', 'Bid withdrawn successfully.');

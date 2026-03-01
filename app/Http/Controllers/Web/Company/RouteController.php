@@ -14,7 +14,7 @@ class RouteController extends BaseController
      */
     public function index()
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
         if (!$company) {
@@ -22,7 +22,7 @@ class RouteController extends BaseController
                 ->with('error', 'Company not found.');
         }
 
-        $routes = $company->supportedRoutes()
+        $routes = $company->routes()
             ->orderBy('origin_state')
             ->orderBy('destination_state')
             ->paginate(20);
@@ -35,7 +35,7 @@ class RouteController extends BaseController
      */
     public function create()
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
         if (!$company) {
@@ -43,7 +43,9 @@ class RouteController extends BaseController
                 ->with('error', 'Company not found.');
         }
 
-        return view('company.routes.create', compact('company'));
+        $hubs = $company->hubs()->where('is_active', true)->orderBy('name')->get();
+
+        return view('company.routes.create', compact('company', 'hubs'));
     }
 
     /**
@@ -51,7 +53,7 @@ class RouteController extends BaseController
      */
     public function store(Request $request)
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
         if (!$company) {
@@ -63,19 +65,37 @@ class RouteController extends BaseController
             'origin_city' => 'required|string|max:100',
             'destination_state' => 'required|string|max:100',
             'destination_city' => 'required|string|max:100',
-            'route_code' => 'required|string|max:50|unique:supported_routes,route_code',
-            'base_price' => 'required|numeric|min:0',
-            'price_per_km' => 'nullable|numeric|min:0',
+            'origin_hub_id' => 'nullable|exists:trucking_hubs,id',
+            'destination_hub_id' => 'nullable|exists:trucking_hubs,id',
+            'base_rate_per_kg' => 'required|numeric|min:0',
+            'minimum_charge' => 'required|numeric|min:0',
             'estimated_days' => 'required|integer|min:1',
             'distance_km' => 'nullable|numeric|min:0',
+            'express_multiplier' => 'nullable|numeric|min:1',
+            'fragile_surcharge_percent' => 'nullable|numeric|min:0|max:100',
+            'insurance_rate_percent' => 'nullable|numeric|min:0|max:100',
+            'max_weight_kg' => 'nullable|numeric|min:0',
+            'is_express_available' => 'boolean',
             'is_active' => 'boolean',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        $company->supportedRoutes()->create($request->all());
+        $company->routes()->create(array_merge(
+            $request->only([
+                'origin_state', 'origin_city', 'destination_state', 'destination_city',
+                'origin_hub_id', 'destination_hub_id', 'base_rate_per_kg', 'minimum_charge',
+                'estimated_days', 'distance_km', 'express_multiplier', 'fragile_surcharge_percent',
+                'insurance_rate_percent', 'max_weight_kg', 'notes',
+            ]),
+            [
+                'is_active' => $request->boolean('is_active', true),
+                'is_express_available' => $request->boolean('is_express_available'),
+            ]
+        ));
 
         return redirect()->route('company.routes.index')
             ->with('success', 'Route created successfully!');
@@ -86,12 +106,14 @@ class RouteController extends BaseController
      */
     public function edit($id)
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
-        $route = $company->supportedRoutes()->findOrFail($id);
+        $route = $company->routes()->findOrFail($id);
 
-        return view('company.routes.edit', compact('route', 'company'));
+        $hubs = $company->hubs()->where('is_active', true)->orderBy('name')->get();
+
+        return view('company.routes.edit', compact('route', 'company', 'hubs'));
     }
 
     /**
@@ -99,29 +121,47 @@ class RouteController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
-        $route = $company->supportedRoutes()->findOrFail($id);
+        $route = $company->routes()->findOrFail($id);
 
         $validator = Validator::make($request->all(), [
             'origin_state' => 'required|string|max:100',
             'origin_city' => 'required|string|max:100',
             'destination_state' => 'required|string|max:100',
             'destination_city' => 'required|string|max:100',
-            'route_code' => 'required|string|max:50|unique:supported_routes,route_code,' . $id,
-            'base_price' => 'required|numeric|min:0',
-            'price_per_km' => 'nullable|numeric|min:0',
+            'origin_hub_id' => 'nullable|exists:trucking_hubs,id',
+            'destination_hub_id' => 'nullable|exists:trucking_hubs,id',
+            'base_rate_per_kg' => 'required|numeric|min:0',
+            'minimum_charge' => 'required|numeric|min:0',
             'estimated_days' => 'required|integer|min:1',
             'distance_km' => 'nullable|numeric|min:0',
+            'express_multiplier' => 'nullable|numeric|min:1',
+            'fragile_surcharge_percent' => 'nullable|numeric|min:0|max:100',
+            'insurance_rate_percent' => 'nullable|numeric|min:0|max:100',
+            'max_weight_kg' => 'nullable|numeric|min:0',
+            'is_express_available' => 'boolean',
             'is_active' => 'boolean',
+            'notes' => 'nullable|string|max:1000',
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        $route->update($request->all());
+        $route->update(array_merge(
+            $request->only([
+                'origin_state', 'origin_city', 'destination_state', 'destination_city',
+                'origin_hub_id', 'destination_hub_id', 'base_rate_per_kg', 'minimum_charge',
+                'estimated_days', 'distance_km', 'express_multiplier', 'fragile_surcharge_percent',
+                'insurance_rate_percent', 'max_weight_kg', 'notes',
+            ]),
+            [
+                'is_active' => $request->boolean('is_active', true),
+                'is_express_available' => $request->boolean('is_express_available'),
+            ]
+        ));
 
         return redirect()->route('company.routes.index')
             ->with('success', 'Route updated successfully!');
@@ -132,10 +172,10 @@ class RouteController extends BaseController
      */
     public function destroy($id)
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
-        $route = $company->supportedRoutes()->findOrFail($id);
+        $route = $company->routes()->findOrFail($id);
 
         $route->delete();
 

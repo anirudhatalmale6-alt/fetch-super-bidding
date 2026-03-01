@@ -14,7 +14,7 @@ class HubController extends BaseController
      */
     public function index()
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
         if (!$company) {
@@ -35,7 +35,7 @@ class HubController extends BaseController
      */
     public function create()
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
         if (!$company) {
@@ -51,7 +51,7 @@ class HubController extends BaseController
      */
     public function store(Request $request)
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
         if (!$company) {
@@ -69,13 +69,23 @@ class HubController extends BaseController
             'email' => 'nullable|email|max:255',
             'is_primary' => 'boolean',
             'is_active' => 'boolean',
+            'hub_type' => 'nullable|in:origin,destination,both,transit',
+            'daily_capacity' => 'nullable|integer|min:1',
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        $company->hubs()->create($request->all());
+        $data = $request->only([
+            'name', 'address', 'city', 'state', 'country', 'postal_code',
+            'phone', 'email', 'hub_type', 'daily_capacity',
+        ]);
+        $data['hub_name'] = $data['name'];
+        $data['is_primary'] = $request->boolean('is_primary');
+        $data['is_active'] = $request->boolean('is_active', true);
+
+        $company->hubs()->create($data);
 
         return redirect()->route('company.hubs.index')
             ->with('success', 'Hub created successfully!');
@@ -86,7 +96,7 @@ class HubController extends BaseController
      */
     public function edit($id)
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
         $hub = $company->hubs()->findOrFail($id);
@@ -99,7 +109,7 @@ class HubController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
         $hub = $company->hubs()->findOrFail($id);
@@ -115,13 +125,23 @@ class HubController extends BaseController
             'email' => 'nullable|email|max:255',
             'is_primary' => 'boolean',
             'is_active' => 'boolean',
+            'hub_type' => 'nullable|in:origin,destination,both,transit',
+            'daily_capacity' => 'nullable|integer|min:1',
         ]);
 
         if ($validator->fails()) {
             return back()->withErrors($validator)->withInput();
         }
 
-        $hub->update($request->all());
+        $data = $request->only([
+            'name', 'address', 'city', 'state', 'country', 'postal_code',
+            'phone', 'email', 'hub_type', 'daily_capacity',
+        ]);
+        $data['hub_name'] = $data['name'];
+        $data['is_primary'] = $request->boolean('is_primary');
+        $data['is_active'] = $request->boolean('is_active', true);
+
+        $hub->update($data);
 
         return redirect()->route('company.hubs.index')
             ->with('success', 'Hub updated successfully!');
@@ -132,7 +152,7 @@ class HubController extends BaseController
      */
     public function destroy($id)
     {
-        $owner = auth()->user()->owner;
+        $owner = auth('web')->user()->owner;
         $company = $owner->truckingCompany;
 
         $hub = $company->hubs()->findOrFail($id);

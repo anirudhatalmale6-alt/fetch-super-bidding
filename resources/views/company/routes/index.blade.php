@@ -43,10 +43,10 @@
                             <table class="table table-hover text-nowrap">
                                 <thead>
                                     <tr>
-                                        <th>Route Code</th>
                                         <th>Origin</th>
                                         <th>Destination</th>
-                                        <th>Base Price</th>
+                                        <th>Rate/kg</th>
+                                        <th>Min. Charge</th>
                                         <th>Est. Days</th>
                                         <th>Distance</th>
                                         <th>Status</th>
@@ -56,14 +56,14 @@
                                 <tbody>
                                     @foreach($routes as $route)
                                     <tr>
-                                        <td><strong>{{ $route->route_code }}</strong></td>
                                         <td>
-                                            {{ $route->origin_city }}, {{ $route->origin_state }}
+                                            <strong>{{ $route->origin_city }}</strong>, {{ $route->origin_state }}
                                         </td>
                                         <td>
-                                            {{ $route->destination_city }}, {{ $route->destination_state }}
+                                            <strong>{{ $route->destination_city }}</strong>, {{ $route->destination_state }}
                                         </td>
-                                        <td>${{ number_format($route->base_price, 2) }}</td>
+                                        <td>&#8358;{{ number_format($route->base_rate_per_kg, 2) }}</td>
+                                        <td>&#8358;{{ number_format($route->minimum_charge, 2) }}</td>
                                         <td>{{ $route->estimated_days }} days</td>
                                         <td>{{ $route->distance_km ? $route->distance_km . ' km' : 'N/A' }}</td>
                                         <td>

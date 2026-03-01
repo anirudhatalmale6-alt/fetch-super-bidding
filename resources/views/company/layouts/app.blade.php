@@ -294,6 +294,14 @@ if (auth('web')->check()) {
                         </ul>
                     </li>
 
+                    <li class="nav-item">
+                        <a href="{{ route('company.deliveries.index') }}"
+                           class="nav-link {{ request()->routeIs('company.deliveries*') ? 'active' : '' }}">
+                            <i class="nav-icon fas fa-truck"></i>
+                            <p>Deliveries</p>
+                        </a>
+                    </li>
+
                     {{-- COMPANY --}}
                     <li class="nav-header" style="color:rgba(255,255,255,.35);font-size:.65rem;letter-spacing:1px;padding:10px 16px 4px;">COMPANY</li>
 
