@@ -356,6 +356,15 @@ class User extends Authenticatable implements CanSendOTPContract
         return $this->hasOne(Owner::class, 'user_id', 'id');
     }
 
+    /**
+     * Get the trucking company through the owner relationship.
+     * Used by trucking company inspection controllers.
+     */
+    public function getTruckingCompanyAttribute()
+    {
+        return $this->owner?->truckingCompany;
+    }
+
     protected function getMobileAttribute($value) {
         if(env('APP_FOR') == 'demo'){
             $mobile_number= substr($value,0,5) . '' . "*****";

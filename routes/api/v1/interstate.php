@@ -44,8 +44,8 @@ Route::prefix('interstate')->namespace('Interstate')->group(function () {
         Route::post('/payment/confirm', 'PaymentController@confirmPayment');
     });
     
-    // Trucking Company Routes (requires trucking_company role)
-    Route::middleware(['auth', 'role:trucking_company'])->prefix('trucking')->group(function () {
+    // Trucking Company Routes (requires owner role — owners with trucking_company_id)
+    Route::middleware(['auth', 'role:owner'])->prefix('trucking')->group(function () {
         
         // Bidding Routes (Company Side)
         Route::get('/bids', 'InterstateBiddingController@getCompanyBids');

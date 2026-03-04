@@ -7,19 +7,14 @@ use App\Models\Request\Request;
 use App\Models\Interstate\RequestPackage;
 use App\Models\Interstate\TrackingUpdate;
 use App\Models\Interstate\InspectionPhoto;
-use App\Services\Interstate\FinalCostCalculationService;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Kreait\Firebase\Contract\Database;
+use Illuminate\Support\Facades\Log;
 use App\Jobs\Notifications\SendPushNotification;
 
 class InspectionController extends BaseController
 {
-    public function __construct(
-        private Database $database,
-        private FinalCostCalculationService $costService
-    ) {}
 
     /**
      * Goods Intake - Search for order by ID, Goods ID, or Tracking ID
@@ -45,8 +40,10 @@ class InspectionController extends BaseController
         $searchTerm = $request->input('search');
 
         // Search by request_number, package_number, or tracking ID
+        // V2 flow: parent requests have inspection_status tracking the flow
         $requests = Request::with(['packages', 'userDetail', 'originHub'])
             ->where('delivery_mode', 'interstate')
+            ->where('is_bid_ride', 0) // Only parent requests, not child legs
             ->where(function ($query) use ($searchTerm) {
                 $query->where('request_number', 'LIKE', "%{$searchTerm}%")
                     ->orWhere('id', 'LIKE', "%{$searchTerm}%")
@@ -55,7 +52,9 @@ class InspectionController extends BaseController
                     });
             })
             ->where('trucking_company_id', $company->id)
-            ->whereIn('status', ['company_assigned', 'picked_up', 'at_origin_hub'])
+            ->whereIn('inspection_status', ['awaiting_inspection', 'inspection_in_progress', 'inspection_completed', 'awaiting_user_approval'])
+            ->where('is_completed', false)
+            ->where('is_cancelled', false)
             ->limit(10)
             ->get();
 
@@ -63,7 +62,6 @@ class InspectionController extends BaseController
             'results' => $requests->map(fn($req) => [
                 'request_id' => $req->id,
                 'request_number' => $req->request_number,
-                'status' => $req->status,
                 'inspection_status' => $req->inspection_status,
                 'customer_name' => $req->userDetail->name ?? 'Unknown',
                 'customer_phone' => $req->userDetail->phone ?? null,
@@ -105,7 +103,9 @@ class InspectionController extends BaseController
         }
 
         try {
-            DB::transaction(function () use ($interstateRequest) {
+            $previousStatus = $interstateRequest->inspection_status;
+
+            DB::transaction(function () use ($interstateRequest, $previousStatus) {
                 $interstateRequest->update([
                     'inspection_status' => 'inspection_in_progress',
                     'inspection_started_at' => now(),
@@ -114,7 +114,7 @@ class InspectionController extends BaseController
                 // Create tracking update
                 TrackingUpdate::createStatusChange(
                     requestId: $interstateRequest->id,
-                    previousStatus: $interstateRequest->inspection_status,
+                    previousStatus: $previousStatus,
                     newStatus: 'inspection_in_progress',
                     message: 'Physical inspection started at hub',
                     createdById: auth()->id(),
@@ -257,13 +257,11 @@ class InspectionController extends BaseController
                         throw new \Exception("Package {$pkgData['package_id']} not found in request");
                     }
 
-                    // Calculate discrepancy
-                    $estimatedWeight = $package->estimated_weight_kg ?? $package->actual_weight_kg;
-                    $weightDiscrepancyPercent = $estimatedWeight > 0 
-                        ? (($pkgData['final_weight_kg'] - $estimatedWeight) / $estimatedWeight) * 100 
-                        : 0;
+                    // Calculate discrepancy vs estimated
+                    $estimatedWeight = $package->estimated_weight_kg ?? 0;
+                    $weightDiscrepancy = $pkgData['final_weight_kg'] - $estimatedWeight;
 
-                    // Calculate final volumetric weight
+                    // Calculate volumetric weight
                     $volumetricWeight = $this->calculateVolumetricWeight(
                         $pkgData['final_length_cm'],
                         $pkgData['final_width_cm'],
@@ -272,22 +270,33 @@ class InspectionController extends BaseController
 
                     $chargeableWeight = max($pkgData['final_weight_kg'], $volumetricWeight);
 
-                    // Update package
+                    // Update package — use actual_* columns for hub-measured values
                     $package->update([
-                        'final_weight_kg' => $pkgData['final_weight_kg'],
-                        'final_length_cm' => $pkgData['final_length_cm'],
-                        'final_width_cm' => $pkgData['final_width_cm'],
-                        'final_height_cm' => $pkgData['final_height_cm'],
-                        'final_declared_value' => $pkgData['final_declared_value'] ?? $package->declared_value,
-                        'final_volumetric_weight_kg' => $volumetricWeight,
+                        'actual_weight_kg' => $pkgData['final_weight_kg'],
+                        'actual_length_cm' => $pkgData['final_length_cm'],
+                        'actual_width_cm' => $pkgData['final_width_cm'],
+                        'actual_height_cm' => $pkgData['final_height_cm'],
+                        'actual_declared_value' => $pkgData['final_declared_value'] ?? $package->declared_value,
                         'final_chargeable_weight_kg' => $chargeableWeight,
-                        'weight_discrepancy_percent' => $weightDiscrepancyPercent,
+                        'weight_discrepancy' => $weightDiscrepancy,
+                        'weight_confirmed' => true,
                     ]);
                 }
 
                 $interstateRequest->update([
+                    'inspection_status' => 'inspection_completed',
                     'inspection_completed_at' => now(),
                 ]);
+
+                // Create tracking update
+                TrackingUpdate::createStatusChange(
+                    requestId: $interstateRequest->id,
+                    previousStatus: 'inspection_in_progress',
+                    newStatus: 'inspection_completed',
+                    message: 'Inspection completed. Measurements verified.',
+                    createdById: auth()->id(),
+                    createdByType: 'trucking_company'
+                );
             });
 
             return $this->respondSuccess([
@@ -326,7 +335,7 @@ class InspectionController extends BaseController
             return $this->respondError('Unauthorized', 403);
         }
 
-        $interstateRequest = Request::with(['packages', 'acceptedBid'])
+        $interstateRequest = Request::with(['packages'])
             ->where('id', $request->input('request_id'))
             ->where('trucking_company_id', $company->id)
             ->first();
@@ -341,28 +350,29 @@ class InspectionController extends BaseController
 
         try {
             DB::transaction(function () use ($interstateRequest, $request, $transportationFee, $insuranceFee, $finalTotal) {
-                // Get initial bid amount
-                $initialBidAmount = $interstateRequest->acceptedBid?->total_bid_amount ?? 0;
+                // In V2 flow there's no upfront bid — initial_bid_amount stays 0
+                $initialBidAmount = $interstateRequest->initial_bid_amount ?? 0;
 
-                // Calculate price difference
+                // Calculate price difference (will be 0 for V2 since no initial bid)
                 $priceDifference = $finalTotal - $initialBidAmount;
-                $priceDifferencePercent = $initialBidAmount > 0 
-                    ? ($priceDifference / $initialBidAmount) * 100 
+                $priceDifferencePercent = $initialBidAmount > 0
+                    ? ($priceDifference / $initialBidAmount) * 100
                     : 0;
 
-                // Update request
+                // Update request with correct column names
                 $interstateRequest->update([
                     'inspection_status' => 'awaiting_user_approval',
                     'approval_status' => 'pending',
-                    'final_transportation_fee' => $transportationFee,
+                    'final_transport_fee' => $transportationFee,
                     'final_insurance_fee' => $insuranceFee,
                     'final_total_amount' => $finalTotal,
                     'initial_bid_amount' => $initialBidAmount,
                     'price_difference' => $priceDifference,
                     'price_difference_percent' => $priceDifferencePercent,
-                    'final_cost_remarks' => $request->input('remarks'),
+                    'inspection_remarks' => $request->input('remarks'),
+                    'final_estimated_delivery_hours' => $request->input('estimated_delivery_hours'),
                     'final_cost_submitted_at' => now(),
-                    'user_approval_deadline' => now()->addHours(48), // 48 hours to approve
+                    'approval_deadline_at' => now()->addHours(48),
                 ]);
 
                 // Create tracking update
@@ -375,19 +385,27 @@ class InspectionController extends BaseController
                     createdByType: 'trucking_company'
                 );
 
-                // Sync to Firebase
-                $this->syncFinalCostToFirebase($interstateRequest);
+                // Sync to Firebase (wrapped in try-catch — may not be configured)
+                try {
+                    $this->syncFinalCostToFirebase($interstateRequest);
+                } catch (\Exception $e) {
+                    Log::warning('Firebase sync failed in inspection final cost: ' . $e->getMessage());
+                }
             });
 
-            // Notify user
-            $this->notifyUserOfFinalCost($interstateRequest);
+            // Notify user (wrapped in try-catch)
+            try {
+                $this->notifyUserOfFinalCost($interstateRequest);
+            } catch (\Exception $e) {
+                Log::warning('Push notification failed in inspection final cost: ' . $e->getMessage());
+            }
 
             return $this->respondSuccess([
                 'request_id' => $interstateRequest->id,
                 'status' => 'awaiting_user_approval',
                 'final_total' => $finalTotal,
                 'price_difference' => $interstateRequest->price_difference,
-                'approval_deadline' => $interstateRequest->user_approval_deadline,
+                'approval_deadline' => $interstateRequest->approval_deadline_at,
             ], 'Final cost submitted successfully. Awaiting user approval.');
 
         } catch (\Exception $e) {
@@ -431,15 +449,16 @@ class InspectionController extends BaseController
                     'height' => $pkg->estimated_height_cm,
                     'declared_value' => $pkg->estimated_declared_value,
                 ],
-                'final' => [
-                    'weight' => $pkg->final_weight_kg,
-                    'length' => $pkg->final_length_cm,
-                    'width' => $pkg->final_width_cm,
-                    'height' => $pkg->final_height_cm,
-                    'declared_value' => $pkg->final_declared_value,
+                'actual' => [
+                    'weight' => $pkg->actual_weight_kg,
+                    'length' => $pkg->actual_length_cm,
+                    'width' => $pkg->actual_width_cm,
+                    'height' => $pkg->actual_height_cm,
+                    'declared_value' => $pkg->actual_declared_value,
                     'chargeable_weight' => $pkg->final_chargeable_weight_kg,
                 ],
-                'discrepancy_percent' => $pkg->weight_discrepancy_percent,
+                'weight_discrepancy' => $pkg->weight_discrepancy,
+                'weight_confirmed' => $pkg->weight_confirmed,
             ]),
             'photos' => $interstateRequest->inspectionPhotos->map(fn($photo) => [
                 'photo_id' => $photo->id,
@@ -451,12 +470,12 @@ class InspectionController extends BaseController
             ]),
             'final_cost' => [
                 'initial_bid' => $interstateRequest->initial_bid_amount,
-                'final_transportation' => $interstateRequest->final_transportation_fee,
+                'final_transportation' => $interstateRequest->final_transport_fee,
                 'final_insurance' => $interstateRequest->final_insurance_fee,
                 'final_total' => $interstateRequest->final_total_amount,
                 'difference' => $interstateRequest->price_difference,
                 'difference_percent' => $interstateRequest->price_difference_percent,
-                'remarks' => $interstateRequest->final_cost_remarks,
+                'remarks' => $interstateRequest->inspection_remarks,
             ],
         ]);
     }
@@ -475,7 +494,12 @@ class InspectionController extends BaseController
      */
     private function syncFinalCostToFirebase(Request $interstateRequest): void
     {
-        $this->database
+        $database = app(\Kreait\Firebase\Contract\Database::class);
+        $deadlineTimestamp = $interstateRequest->approval_deadline_at
+            ? $interstateRequest->approval_deadline_at->timestamp * 1000
+            : null;
+
+        $database
             ->getReference("interstate-requests/{$interstateRequest->id}/final_cost")
             ->set([
                 'status' => 'awaiting_user_approval',
@@ -484,7 +508,7 @@ class InspectionController extends BaseController
                 'difference' => $interstateRequest->price_difference,
                 'difference_percent' => $interstateRequest->price_difference_percent,
                 'submitted_at' => now()->timestamp * 1000,
-                'approval_deadline' => $interstateRequest->user_approval_deadline->timestamp * 1000,
+                'approval_deadline' => $deadlineTimestamp,
             ]);
     }
 
