@@ -16,7 +16,10 @@ Route::prefix('interstate')->namespace('Interstate')->group(function () {
     
     // Public/Authenticated routes
     Route::middleware('auth')->group(function () {
-        
+
+        // Company Selection (V2 flow - user picks company, no upfront bidding)
+        Route::get('/companies', 'CompanyListController@getAvailableCompanies');
+
         // Freight Calculation & Quotes
         Route::post('/freight/quote', 'FreightCalculationController@calculateQuote');
         Route::post('/freight/validate', 'FreightCalculationController@validatePackages');

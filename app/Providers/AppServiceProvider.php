@@ -29,6 +29,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Validator $validator)
     {
+        // Register Interstate Request Observer
+        \App\Models\Request\Request::observe(\App\Observers\InterstateRequestObserver::class);
+
         // \Braintree_Configuration::environment(env('BTREE_ENVIRONMENT'));
         // \Braintree_Configuration::merchantId(env('BTREE_MERCHANT_ID'));
         // \Braintree_Configuration::publicKey(env('BTREE_PUBLIC_KEY'));

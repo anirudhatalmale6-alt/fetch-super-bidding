@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1\Interstate;
 
 use App\Http\Controllers\Api\V1\BaseController;
 use App\Services\Interstate\InterstateRequestService;
+use App\Services\Interstate\InterstateRequestServiceV2;
 use App\Models\Request\Request;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Validator;
@@ -11,7 +12,8 @@ use Illuminate\Support\Facades\Validator;
 class InterstateDeliveryController extends BaseController
 {
     public function __construct(
-        private InterstateRequestService $requestService
+        private InterstateRequestService $requestService,
+        private InterstateRequestServiceV2 $requestServiceV2
     ) {}
 
     /**
@@ -19,12 +21,18 @@ class InterstateDeliveryController extends BaseController
      *
      * POST /api/v1/interstate/delivery/request
      *
-     * Supports two formats:
-     * 1. Legacy: route_id + pick/drop coordinates + packages array
-     * 2. Structured (3-step Flutter form): pickup_state/destination_state + single package
+     * Supports three formats:
+     * 1. V2 (Company Selection): trucking_company_id + pickup/destination details
+     * 2. Legacy: route_id + pick/drop coordinates + packages array
+     * 3. Structured (3-step Flutter form): pickup_state/destination_state + single package
      */
     public function createRequest(HttpRequest $request)
     {
+        // V2 flow: user selected a company directly (no bidding phase)
+        if ($request->has('trucking_company_id') && !$request->has('route_id')) {
+            return $this->createRequestV2($request);
+        }
+
         // Detect format: structured if pickup_state is present
         $isStructured = $request->has('pickup_state') || $request->has('destination_state');
 
@@ -162,6 +170,126 @@ class InterstateDeliveryController extends BaseController
         ];
 
         return $this->processCreateRequest($data);
+    }
+
+    /**
+     * V2 Flow: Create interstate request with company selection.
+     * User picks a company from list → Leg 1 bid ride created for dispatch rider pickup.
+     */
+    private function createRequestV2(HttpRequest $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'trucking_company_id' => 'required|integer|exists:trucking_companies,id',
+            'pickup_address' => 'required|string|max:500',
+            'pickup_state' => 'required|string|max:100',
+            'pick_lat' => 'nullable|numeric|between:-90,90',
+            'pick_lng' => 'nullable|numeric|between:-180,180',
+            'sender_phone' => 'required|string|max:20',
+            'sender_name' => 'nullable|string|max:100',
+            'destination_address' => 'required|string|max:500',
+            'destination_state' => 'required|string|max:100',
+            'drop_lat' => 'nullable|numeric|between:-90,90',
+            'drop_lng' => 'nullable|numeric|between:-180,180',
+            'recipient_phone' => 'required|string|max:20',
+            'recipient_name' => 'nullable|string|max:100',
+            'estimated_weight_kg' => 'required|numeric|min:0.1|max:1000',
+            'estimated_length_cm' => 'required|numeric|min:1|max:500',
+            'estimated_width_cm' => 'required|numeric|min:1|max:500',
+            'estimated_height_cm' => 'required|numeric|min:1|max:500',
+            'estimated_goods_value' => 'nullable|numeric|min:0',
+            'origin_hub_id' => 'nullable|integer',
+            'destination_hub_id' => 'nullable|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->respondWithValidationErrors($validator);
+        }
+
+        if (strtolower(trim($request->pickup_state)) === strtolower(trim($request->destination_state))) {
+            return $this->respondError('Origin and destination must be different states.', 422);
+        }
+
+        $weight = (float) $request->estimated_weight_kg;
+        $length = (float) $request->estimated_length_cm;
+        $width = (float) $request->estimated_width_cm;
+        $height = (float) $request->estimated_height_cm;
+        $declaredValue = (float) ($request->estimated_goods_value ?? 0);
+
+        try {
+            $result = $this->requestServiceV2->createInterstateRequest([
+                'user_id' => auth()->id(),
+                'trucking_company_id' => $request->trucking_company_id,
+                'pick_address' => $request->pickup_address,
+                'pick_lat' => $request->pick_lat ?? 0,
+                'pick_lng' => $request->pick_lng ?? 0,
+                'drop_address' => $request->destination_address,
+                'drop_lat' => $request->drop_lat ?? 0,
+                'drop_lng' => $request->drop_lng ?? 0,
+                'pickup_state' => $request->pickup_state,
+                'destination_state' => $request->destination_state,
+                'sender_phone' => $request->sender_phone,
+                'sender_name' => $request->sender_name,
+                'recipient_phone' => $request->recipient_phone,
+                'recipient_name' => $request->recipient_name,
+                'origin_hub_id' => $request->origin_hub_id,
+                'destination_hub_id' => $request->destination_hub_id,
+                'packages' => [[
+                    'actual_weight_kg' => $weight,
+                    'length_cm' => $length,
+                    'width_cm' => $width,
+                    'height_cm' => $height,
+                    'declared_value' => $declaredValue,
+                    'quantity' => 1,
+                    'estimated_weight_kg' => $weight,
+                    'estimated_length_cm' => $length,
+                    'estimated_width_cm' => $width,
+                    'estimated_height_cm' => $height,
+                    'estimated_declared_value' => $declaredValue,
+                ]],
+            ]);
+
+            $parentRequest = $result['parent_request'];
+            $leg1BidRequest = $result['leg1_bid_request'];
+
+            return $this->respondSuccess([
+                'request_id' => $parentRequest->id,
+                'request_number' => $parentRequest->request_number,
+                'status' => 'leg1_awaiting_driver',
+                'trucking_company' => [
+                    'id' => $parentRequest->truckingCompany->id,
+                    'name' => $parentRequest->truckingCompany->company_name,
+                ],
+                'origin_hub' => $parentRequest->originHub ? [
+                    'name' => $parentRequest->originHub->hub_name,
+                    'address' => $parentRequest->originHub->address,
+                ] : null,
+                'leg1_bid_ride' => [
+                    'request_id' => $leg1BidRequest->id,
+                    'request_number' => $leg1BidRequest->request_number,
+                    'pickup' => $leg1BidRequest->pick_address,
+                    'dropoff' => $leg1BidRequest->drop_address,
+                ],
+                'packages' => $parentRequest->packages->map(fn($pkg) => [
+                    'package_number' => $pkg->package_number,
+                    'weight_kg' => $pkg->estimated_weight_kg,
+                    'dimensions' => "{$pkg->length_cm} x {$pkg->width_cm} x {$pkg->height_cm} cm",
+                ]),
+                'flow' => [
+                    'step' => 1,
+                    'description' => 'Waiting for dispatch rider to accept pickup',
+                    'next' => 'Rider picks up → Delivers to company hub → Company weighs & prices → You approve/reject',
+                ],
+                'created_at' => $parentRequest->created_at,
+            ], 'Interstate delivery created! A dispatch rider will pick up your package and deliver it to the trucking company hub.');
+
+        } catch (\InvalidArgumentException $e) {
+            return $this->respondError($e->getMessage(), 422);
+        } catch (\Exception $e) {
+            \Log::error('V2 interstate request creation failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return $this->respondError('Failed to create request: ' . $e->getMessage(), 500);
+        }
     }
 
     /**

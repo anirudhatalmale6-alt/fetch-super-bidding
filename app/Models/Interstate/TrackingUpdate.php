@@ -9,31 +9,32 @@ class TrackingUpdate extends Model
 {
     protected $fillable = [
         'request_id',
-        'request_package_id',
+        'goods_item_id',
         'message',
-        'update_type',
-        'location_name',
         'latitude',
         'longitude',
-        'image_url',
-        'attachments',
+        'location_address',
         'created_by_type',
         'created_by_id',
-        'created_by_name',
         'previous_status',
         'new_status',
-        'user_notified_at',
-        'is_customer_visible',
         'metadata',
+        'is_cost_update',
+        'cost_type',
+        'cost_amount',
+        'is_handover',
+        'handover_from_type',
+        'handover_to_type',
+        'handover_to_id',
     ];
 
     protected $casts = [
-        'latitude' => 'decimal:8',
-        'longitude' => 'decimal:8',
-        'attachments' => 'array',
+        'latitude' => 'decimal:7',
+        'longitude' => 'decimal:7',
         'metadata' => 'array',
-        'user_notified_at' => 'datetime',
-        'is_customer_visible' => 'boolean',
+        'is_cost_update' => 'boolean',
+        'cost_amount' => 'decimal:2',
+        'is_handover' => 'boolean',
     ];
 
     // Relationships
@@ -42,9 +43,9 @@ class TrackingUpdate extends Model
         return $this->belongsTo(Request::class, 'request_id');
     }
 
-    public function package()
+    public function goodsItem()
     {
-        return $this->belongsTo(RequestPackage::class, 'request_package_id');
+        return $this->belongsTo(\App\Models\Request\GoodsItem::class, 'goods_item_id');
     }
 
     // Scopes
@@ -106,8 +107,7 @@ class TrackingUpdate extends Model
     ): self {
         return self::create([
             'request_id' => $requestId,
-            'request_package_id' => $packageId,
-            'update_type' => 'status_change',
+            'goods_item_id' => $packageId,
             'previous_status' => $previousStatus,
             'new_status' => $newStatus,
             'message' => $message,
@@ -126,9 +126,8 @@ class TrackingUpdate extends Model
     ): self {
         return self::create([
             'request_id' => $requestId,
-            'request_package_id' => $packageId,
-            'update_type' => 'location_update',
-            'location_name' => $locationName,
+            'goods_item_id' => $packageId,
+            'location_address' => $locationName,
             'latitude' => $latitude,
             'longitude' => $longitude,
             'message' => $message,
@@ -144,10 +143,9 @@ class TrackingUpdate extends Model
     ): self {
         return self::create([
             'request_id' => $requestId,
-            'request_package_id' => $packageId,
-            'update_type' => 'inspection_note',
+            'goods_item_id' => $packageId,
+            'new_status' => 'inspection_note',
             'message' => $message,
-            'image_url' => $imageUrl,
             'created_by_type' => 'trucking_company',
             'created_by_id' => $createdById,
         ]);

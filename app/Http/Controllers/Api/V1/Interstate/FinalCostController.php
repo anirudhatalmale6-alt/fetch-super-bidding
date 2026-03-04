@@ -7,6 +7,7 @@ use App\Models\Request\Request;
 use App\Models\Interstate\TrackingUpdate;
 use App\Services\Interstate\ReroutingService;
 use App\Services\Interstate\RefundService;
+use App\Services\Interstate\InterstateRequestServiceV2;
 use Illuminate\Http\Request as HttpRequest;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,8 @@ class FinalCostController extends BaseController
     public function __construct(
         private Database $database,
         private ReroutingService $reroutingService,
-        private RefundService $refundService
+        private RefundService $refundService,
+        private InterstateRequestServiceV2 $requestServiceV2
     ) {}
 
     /**
@@ -41,9 +43,9 @@ class FinalCostController extends BaseController
         // Calculate time remaining for approval
         $timeRemaining = null;
         $isExpired = false;
-        if ($interstateRequest->user_approval_deadline) {
+        if ($interstateRequest->approval_deadline_at) {
             $now = now();
-            $deadline = $interstateRequest->user_approval_deadline;
+            $deadline = $interstateRequest->approval_deadline_at;
             $isExpired = $now->isAfter($deadline);
             if (!$isExpired) {
                 $diff = $now->diff($deadline);
@@ -106,7 +108,7 @@ class FinalCostController extends BaseController
                     'total' => $interstateRequest->initial_bid_amount,
                 ],
                 'final_cost' => [
-                    'transportation_fee' => $interstateRequest->final_transportation_fee,
+                    'transportation_fee' => $interstateRequest->final_transport_fee,
                     'insurance_fee' => $interstateRequest->final_insurance_fee,
                     'total' => $interstateRequest->final_total_amount,
                 ],
@@ -116,10 +118,10 @@ class FinalCostController extends BaseController
                     'is_increase' => ($interstateRequest->price_difference ?? 0) > 0,
                 ],
             ],
-            'company_remarks' => $interstateRequest->final_cost_remarks,
+            'company_remarks' => $interstateRequest->inspection_remarks,
             'timeline' => [
                 'submitted_at' => $interstateRequest->final_cost_submitted_at,
-                'approval_deadline' => $interstateRequest->user_approval_deadline,
+                'approval_deadline' => $interstateRequest->approval_deadline_at,
                 'time_remaining' => $timeRemaining,
                 'is_expired' => $isExpired,
             ],
@@ -146,7 +148,7 @@ class FinalCostController extends BaseController
         }
 
         // Check if approval deadline has passed
-        if ($interstateRequest->user_approval_deadline && now()->isAfter($interstateRequest->user_approval_deadline)) {
+        if ($interstateRequest->approval_deadline_at && now()->isAfter($interstateRequest->approval_deadline_at)) {
             return $this->respondError('Approval deadline has passed. Please contact support.', 422);
         }
 
@@ -158,7 +160,7 @@ class FinalCostController extends BaseController
                     'user_approved_at' => now(),
                     'approved_by_user_id' => auth()->id(),
                     'status' => 'confirmed', // Ready for payment
-                    'interstate_transport_fee' => $interstateRequest->final_transportation_fee,
+                    'interstate_transport_fee' => $interstateRequest->final_transport_fee,
                 ]);
 
                 // Create tracking update
@@ -172,18 +174,49 @@ class FinalCostController extends BaseController
                 );
 
                 // Sync to Firebase
-                $this->syncApprovalToFirebase($interstateRequest, 'approved');
+                try {
+                    $this->syncApprovalToFirebase($interstateRequest, 'approved');
+                } catch (\Exception $e) {
+                    \Log::warning('Firebase sync failed on approval: ' . $e->getMessage());
+                }
             });
 
             // Notify company
-            $this->notifyCompanyOfApproval($interstateRequest);
+            try {
+                $this->notifyCompanyOfApproval($interstateRequest);
+            } catch (\Exception $e) {
+                \Log::warning('Company notification failed: ' . $e->getMessage());
+            }
 
-            return $this->respondSuccess([
+            // V2 Flow: Create Leg 2 bid ride for local delivery (hub → recipient)
+            $leg2BidRequest = null;
+            try {
+                $leg2BidRequest = $this->requestServiceV2->createLeg2BidRide($interstateRequest);
+            } catch (\Exception $e) {
+                \Log::warning('Failed to auto-create Leg 2 bid ride: ' . $e->getMessage());
+            }
+
+            $response = [
                 'request_id' => $interstateRequest->id,
                 'status' => 'approved_by_user',
-                'next_step' => 'payment',
+                'next_step' => $leg2BidRequest ? 'leg2_awaiting_driver' : 'payment',
                 'final_amount' => $interstateRequest->final_total_amount,
-            ], 'Final cost approved. Please proceed to payment.');
+            ];
+
+            if ($leg2BidRequest) {
+                $response['leg2_bid_ride'] = [
+                    'request_id' => $leg2BidRequest->id,
+                    'request_number' => $leg2BidRequest->request_number,
+                    'pickup' => $leg2BidRequest->pick_address,
+                    'dropoff' => $leg2BidRequest->drop_address,
+                ];
+            }
+
+            return $this->respondSuccess($response,
+                $leg2BidRequest
+                    ? 'Final cost approved! A dispatch rider will pick up from the hub and deliver to the recipient.'
+                    : 'Final cost approved. Please proceed to payment.'
+            );
 
         } catch (\Exception $e) {
             return $this->respondError('Failed to approve final cost: ' . $e->getMessage(), 500);
@@ -199,6 +232,7 @@ class FinalCostController extends BaseController
     {
         $validator = Validator::make($request->all(), [
             'rejection_reason' => 'required|string|max:500',
+            'new_trucking_company_id' => 'required|integer|exists:trucking_companies,id',
         ]);
 
         if ($validator->fails()) {
@@ -217,7 +251,7 @@ class FinalCostController extends BaseController
         }
 
         // Check re-routing attempt limit
-        if ($interstateRequest->rerouting_attempt_count >= 2) {
+        if ($interstateRequest->reroute_attempts >= 2) {
             return $this->respondError('Maximum re-routing attempts reached. Please cancel or accept current offer.', 422);
         }
 
@@ -232,8 +266,8 @@ class FinalCostController extends BaseController
                     'user_rejected_at' => now(),
                     'approved_by_user_id' => auth()->id(),
                     'rerouting_requested_at' => now(),
-                    'previous_company_id' => $previousCompanyId,
-                    'rerouting_attempt_count' => $interstateRequest->rerouting_attempt_count + 1,
+                    'previous_trucking_company_id' => $previousCompanyId,
+                    'reroute_attempts' => $interstateRequest->reroute_attempts + 1,
                 ]);
 
                 // Create tracking update
@@ -247,17 +281,56 @@ class FinalCostController extends BaseController
                 );
 
                 // Sync to Firebase
-                $this->syncApprovalToFirebase($interstateRequest, 'rejected');
+                try {
+                    $this->syncApprovalToFirebase($interstateRequest, 'rejected');
+                } catch (\Exception $e) {
+                    \Log::warning('Firebase sync failed on rejection: ' . $e->getMessage());
+                }
             });
 
-            // Trigger re-routing process
-            $this->reroutingService->initiateRerouting($interstateRequest, $request->input('rejection_reason'));
+            // V2 Flow: Create reroute transfer bid ride
+            $newCompany = \App\Models\Interstate\TruckingCompany::findOrFail($request->input('new_trucking_company_id'));
+            $currentHub = $interstateRequest->originHub;
+
+            // Find new company's hub in the same state
+            $newHub = $newCompany->hubs()
+                ->where('is_active', true)
+                ->where(function ($q) use ($currentHub) {
+                    $q->where('state', 'LIKE', "%{$currentHub->state}%")
+                      ->orWhere('city', 'LIKE', "%{$currentHub->city}%");
+                })
+                ->first();
+
+            if (!$newHub) {
+                // Fallback: use primary hub
+                $newHub = $newCompany->hubs()->where('is_active', true)->first();
+            }
+
+            if (!$newHub) {
+                return $this->respondError('New company has no active hubs available.', 422);
+            }
+
+            $rerouteResult = $this->requestServiceV2->createRerouteBidRide(
+                $interstateRequest,
+                $newCompany,
+                $currentHub,
+                $newHub
+            );
 
             return $this->respondSuccess([
                 'request_id' => $interstateRequest->id,
-                'status' => 'rerouting_requested',
-                'rerouting_attempt' => $interstateRequest->rerouting_attempt_count,
-                'message' => 'Re-routing request submitted. We will arrange pickup from the current hub and find a new trucking company.',
+                'status' => 'rerouting_in_progress',
+                'rerouting_attempt' => $interstateRequest->reroute_attempts,
+                'new_company' => [
+                    'id' => $newCompany->id,
+                    'name' => $newCompany->company_name,
+                ],
+                'transfer_bid_ride' => [
+                    'request_id' => $rerouteResult['bid_request']->id,
+                    'from_hub' => $currentHub->hub_name,
+                    'to_hub' => $newHub->hub_name,
+                ],
+                'message' => "Rerouting to {$newCompany->company_name}. A dispatch rider will transfer your package.",
             ]);
 
         } catch (\Exception $e) {
@@ -344,7 +417,7 @@ class FinalCostController extends BaseController
         if ($interstateRequest->inspection_status === 'awaiting_user_approval') {
             $actions[] = 'accept_and_pay';
             
-            if ($interstateRequest->rerouting_attempt_count < 2) {
+            if ($interstateRequest->reroute_attempts < 2) {
                 $actions[] = 'decline_and_reroute';
             }
             
