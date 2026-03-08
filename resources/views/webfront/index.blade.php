@@ -94,6 +94,24 @@
     }
     .hero-dot.active { background: #2bc9de; transform: scale(1.35); }
 
+    /* YouTube embed */
+    .hero-yt-wrap {
+        position: relative;
+        width: 100%;
+        padding-bottom: 56.25%; /* 16:9 */
+        max-height: 520px;
+        overflow: hidden;
+        background: #000;
+    }
+    .hero-yt-iframe {
+        position: absolute;
+        top: 50%; left: 50%;
+        width: 110%; height: 110%;
+        transform: translate(-50%, -50%);
+        border: 0;
+        pointer-events: none;
+    }
+
     /* fallback (no banners) */
     .hero-static-banner {
         background: var(--logo-gradient);
@@ -126,10 +144,26 @@
     </button>
 
     @foreach($heroBanners as $i => $banner)
-    <div class="hero-slide {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}">
-        @if($banner->video_url)
+    @php
+        $ytId = null;
+        $videoUrl = $banner->video_url ?? ($banner->video ? asset('storage/banners/videos/'.$banner->video) : null);
+        if ($videoUrl) {
+            // Match YouTube URLs: youtube.com/watch?v=ID, youtu.be/ID, youtube.com/embed/ID, youtube.com/shorts/ID
+            if (preg_match('/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/', $videoUrl, $m)) {
+                $ytId = $m[1];
+            }
+        }
+    @endphp
+    <div class="hero-slide {{ $i === 0 ? 'active' : '' }}" data-index="{{ $i }}" @if($ytId) data-youtube="{{ $ytId }}" @endif>
+        @if($ytId)
+            <div class="hero-yt-wrap">
+                <iframe src="https://www.youtube.com/embed/{{ $ytId }}?autoplay={{ $i === 0 ? 1 : 0 }}&mute=1&loop=1&playlist={{ $ytId }}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&enablejsapi=1"
+                        frameborder="0" allow="autoplay; encrypted-media" allowfullscreen
+                        class="hero-yt-iframe"></iframe>
+            </div>
+        @elseif($videoUrl)
             <video autoplay muted loop playsinline>
-                <source src="{{ $banner->video_url }}">
+                <source src="{{ $videoUrl }}">
                 <img src="{{ $banner->image_url }}" alt="{{ $banner->title ?? '' }}">
             </video>
         @elseif($banner->image)
@@ -172,11 +206,21 @@
     let timer;
 
     window.heroGoTo = function (n) {
+        // Pause outgoing YouTube
+        var oldIframe = slides[cur]?.querySelector('.hero-yt-iframe');
+        if (oldIframe) {
+            oldIframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+        }
         slides[cur]?.classList.remove('active');
         dots[cur]?.classList.remove('active');
         cur = ((n % slides.length) + slides.length) % slides.length;
         slides[cur]?.classList.add('active');
         dots[cur]?.classList.add('active');
+        // Play incoming YouTube
+        var newIframe = slides[cur]?.querySelector('.hero-yt-iframe');
+        if (newIframe) {
+            newIframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+        }
     };
 
     window.heroSlide = function (dir) {

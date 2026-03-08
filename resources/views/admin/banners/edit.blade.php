@@ -87,10 +87,10 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="video_url">Banner Video URL</label>
-                                    <input type="url" class="form-control @error('video_url') is-invalid @enderror" 
-                                           id="video_url" name="video_url" value="{{ old('video_url', $banner->video_url) }}" placeholder="https://...">
-                                    <small class="text-muted">YouTube or Vimeo embed URL. Image will be used as fallback.</small>
+                                    <label for="video_url">YouTube / Video URL</label>
+                                    <input type="url" class="form-control @error('video_url') is-invalid @enderror"
+                                           id="video_url" name="video_url" value="{{ old('video_url', $banner->video_url) }}" placeholder="https://www.youtube.com/watch?v=...">
+                                    <small class="text-muted">Paste any YouTube link (youtube.com/watch?v=..., youtu.be/..., shorts). It will auto-embed as a video player on the homepage.</small>
                                     @error('video_url')
                                         <span class="invalid-feedback">{{ $message }}</span>
                                     @enderror
